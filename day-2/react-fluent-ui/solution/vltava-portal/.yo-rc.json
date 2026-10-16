@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "vltava-portal",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "Portal",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.0",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "vltava-portal",
+    "libraryId": "63b58c1b-d1ac-4c19-8506-3f5e9e607ac5",
+    "solutionShortDescription": "vltava-portal description",
+    "isDomainIsolated": false
+  }
+}

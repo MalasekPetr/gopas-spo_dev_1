@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <!-- Announcement banner on every page of the site where the app is added. -->
+    <CustomAction
+        Title="PortalBanner"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ClientSideComponentId="6a761fcd-ab70-4c8d-95d9-033c26a01409"
+        ClientSideComponentProperties="{&quot;message&quot;:&quot;Planned maintenance of the service desk on Friday 17:00-19:00.&quot;,&quot;level&quot;:&quot;warning&quot;}">
+    </CustomAction>
+    <!-- Issue equipment command for generic lists (100); the code shows it only in Lists/Equipment. -->
+    <CustomAction
+        Title="IssueEquipment"
+        RegistrationId="100"
+        RegistrationType="List"
+        Location="ClientSideExtension.ListViewCommandSet"
+        ClientSideComponentId="34ffa051-ba09-45b3-ab23-634fb36d5973">
+    </CustomAction>
+</Elements>

@@ -1,0 +1,30 @@
+define([], function() {
+  return {
+    "PropertyPaneDescription": "Configure the department portal",
+    "ContentGroupName": "Content",
+    "LibraryGroupName": "Department documents",
+    "DisplayGroupName": "Display",
+    "TitleFieldLabel": "Title",
+    "TitleTooLong": "The title can have at most {0} characters.",
+    "LinksFieldLabel": "Links",
+    "LinksFieldDescription": "One link per line: Title|https://address",
+    "LinksFormatError": "Line {0}: use the format Title|https://address.",
+    "LinksUrlError": "Line {0}: the address must start with https://.",
+    "LibraryFieldLabel": "Document library",
+    "NoLibraryOption": "(none)",
+    "LibrariesLoadError": "Document libraries could not be loaded.",
+    "LibraryLinkTitle": "Department documents",
+    "ShowEnvironmentFieldLabel": "Show environment information",
+    "PortalTitle": "Vltava Servis portal",
+    "Greeting": "Hello",
+    "AppLocalEnvironmentSharePoint": "The app is running on your local environment as SharePoint web part",
+    "AppLocalEnvironmentTeams": "The app is running on your local environment as Microsoft Teams app",
+    "AppLocalEnvironmentOffice": "The app is running on your local environment in office.com",
+    "AppLocalEnvironmentOutlook": "The app is running on your local environment in Outlook",
+    "AppSharePointEnvironment": "The app is running on SharePoint page",
+    "AppTeamsTabEnvironment": "The app is running in Microsoft Teams",
+    "AppOfficeEnvironment": "The app is running in office.com",
+    "AppOutlookEnvironment": "The app is running in Outlook",
+    "UnknownEnvironment": "The app is running in an unknown environment"
+  }
+});

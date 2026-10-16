@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "kendo-sandbox-client-side-solution",
+    "id": "2704e22b-e44c-4cb2-b8d7-7e77796a13b9",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "kendo-sandbox description"
+      },
+      "longDescription": {
+        "default": "kendo-sandbox description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "kendo-sandbox Feature",
+        "description": "The feature that activates elements of the kendo-sandbox solution.",
+        "id": "51c44cd2-0b0c-4ad4-955a-4753d555597f",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/kendo-sandbox.sppkg"
+  }
+}

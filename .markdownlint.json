@@ -1,0 +1,12 @@
+{
+  "//": "Tabulky pisema kompaktnim stylem |---|---| shodne s repy gopas-goc222 a gopas-spo_copilot.",
+  "MD060": false,
+  "//line-length": "Radky drzime na 100 znacich rucne; MD013 by hlasil i tabulky a odkazy, kde to nejde.",
+  "MD013": false,
+  "//inline-html": "GitHub alerty a <br/> v Mermaid popiscich.",
+  "MD033": false,
+  "//first-line": "Nektere soubory zacinaji H1 az po meta-bloku.",
+  "MD041": false,
+  "//blanks-blockquote": "Dva GitHub alerty za sebou musi byt oddelene prazdnym radkem, jinak se slouci.",
+  "MD028": false
+}

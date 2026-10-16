@@ -1,0 +1,23 @@
+# Claude working context -- local only
+CLAUDE.md
+.claude/
+
+# Lokalni vystupy -- NIKDY necommitovat (public repo)
+/scripts/*.local.*
+/scripts/out/
+
+# SPFx build vystupy v referencnich resenich
+node_modules/
+lib/
+lib-dts/
+lib-commonjs/
+lib-esm/
+dist/
+temp/
+release/
+jest-output/
+.heft/
+*.sppkg
+*.scss.ts
+*.resx.ts
+sharepoint/solution/

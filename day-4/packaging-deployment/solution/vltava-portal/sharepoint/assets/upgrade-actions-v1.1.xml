@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v1.1: the feature already existed in v1.0 without elements; apply them on upgrade. -->
+<ApplyElementManifests>
+  <ElementManifest Location="c22fd340-60e4-404f-ae1c-f6a915655f9e\elements.xml" />
+</ApplyElementManifests>

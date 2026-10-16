@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "kendo-sandbox",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "KendoGrid",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.0",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "kendo-sandbox",
+    "libraryId": "2704e22b-e44c-4cb2-b8d7-7e77796a13b9",
+    "solutionShortDescription": "kendo-sandbox description",
+    "isDomainIsolated": false
+  }
+}
