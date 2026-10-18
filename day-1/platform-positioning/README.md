@@ -119,10 +119,26 @@ na údržbu k nejdražšímu:
 | odpovídat nad obsahem v přirozeném jazyce | **deklarativní agent** (SharePoint agent) | ne | vlastník obsahu |
 | vlastní UI na stránce, data z více zdrojů, logika v prohlížeči | **SPFx web part** | ano | vývojář |
 | chování na **každé** stránce nebo v **každém** seznamu (banner, akce, vykreslení sloupce) | **SPFx extension** | ano | vývojář |
-| samostatná aplikace s vlastním backendem, hlavně v Teams | **Teams aplikace** (Microsoft 365 Agents Toolkit) | ano | vývojář + provoz backendu |
+| logika, kterou prohlížeč dělat **nesmí nebo nemůže**: tajemství (klíč k API), oprávnění aplikace místo uživatele, běh na pozadí, integrace s externím systémem | **SPFx + vlastní API** — Azure Functions nebo Azure App Service za Entra ID, volané přes `AadHttpClient` | ano | vývojář + provoz Azure u zákazníka |
+| aplikace, jejímž hlavním místem je Teams (bot, konverzace, zprávy) | **Teams aplikace** (Microsoft 365 Agents Toolkit) | ano | vývojář + provoz backendu |
+| agent v Copilotu má místo textu ukázat **interaktivní UI** (přehled, filtr, akce) | **Copilot UX component** — SPFx komponenta + deklarativní agent v jednom `.sppkg` (preview) | ano | vývojář |
+| agent s **vlastní orchestrací nebo modelem**, který jedná i sám od sebe (proaktivně) a integruje externí systémy | **custom engine agent** (Microsoft 365 Agents SDK), hostovaný v Azure | ano | vývojář + provoz Azure u zákazníka |
+
+SPFx + vlastní API není výjimka, ale běžná a Microsoftem dokumentovaná architektura: SPFx
+je UI v SharePointu, backend drží tajemství, běží na pozadí a mluví s okolními systémy.
+Tutoriál na Learn staví API přímo jako Azure Function. Serverless plán Flex Consumption se
+platí za běh, takže API s malou zátěží stojí málo. Ze zkušenosti lektora: v produkci je
+tahle dvojice levná a dlouhodobě spolehlivá — SPFx i Azure Functions jsou podporované
+platformy s plánovaným životním cyklem, ne vlastní servery na údržbu. Funkční ukázka (Command Set → Azure Function → Graph):
+[gopas-jsdays-2026](https://github.com/MalasekPetr/gopas-jsdays-2026).
 
 Zdroje: [Column formatting](https://learn.microsoft.com/en-us/sharepoint/dev/declarative-customization/column-formatting),
 [Declarative agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-declarative-agent),
+[Connect to Entra ID-secured APIs in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient),
+[Consume enterprise APIs secured with Azure AD in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient-enterpriseapi),
+[Azure Functions hosting options](https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale),
+[Overview of Copilot UX components](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/copilot/overview-copilot-apps),
+[Custom engine agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-custom-engine-agent),
 [SPFx for Teams](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/build-for-teams-overview).
 
 ### Hranice tenantu
@@ -136,8 +152,9 @@ flowchart LR
     AC[App Catalog<br/>hostuje JS] --> B[Prohlizec uzivatele<br/>SPFx komponenta]
     B -->|SPHttpClient| SP[SharePoint REST]
     B -->|MSGraphClient| G[Microsoft Graph]
+    B -->|AadHttpClient| F[Vlastni API<br/>Azure subscription zakaznika]
   end
-  B -.->|AadHttpClient / fetch| X[API mimo tenant]
+  B -.->|AadHttpClient / fetch| X[API treti strany<br/>mimo tenant]
   A[Admin tenantu] -->|schvaluje API opravneni| B
 ```
 
@@ -150,7 +167,9 @@ Tři důsledky, které budou celý týden zpátky:
    v [`../../day-3/permissions-consent/`](../../day-3/permissions-consent/).
 3. **Data opouštějí tenant jen tam, kde to kód výslovně udělá** — volání externího API,
    načtení skriptu z cizího CDN, telemetrie do vlastní služby. Každé takové místo je
-   rozhodnutí, které musí znát zákazník.
+   rozhodnutí, které musí znát zákazník. Vlastní API v **Azure subscription zákazníka**
+   (stejný Entra tenant) hranici neopouští — proto je to doporučené místo pro backend.
+   API dodavatele nebo třetí strany ji opouští vždy.
 
 ## Klíčové rozlišení
 
@@ -159,8 +178,9 @@ Tři důsledky, které budou celý týden zpátky:
   SharePoint.
 - **SPFx web part vs. JSON formátování** — formátování mění jen vzhled dat, která seznam už
   má; web part může data kombinovat, počítat a volat API.
-- **Komponenta vs. aplikace** — SPFx nemá backend. Jakmile řešení potřebuje vlastní server,
-  není to „SPFx řešení", ale aplikace, která SPFx používá jako UI.
+- **Komponenta vs. aplikace** — SPFx sám backend nemá. Jakmile řešení potřebuje server,
+  přidá se vedle něj vlastní API (Azure Functions, App Service) a SPFx zůstává jeho UI
+  v SharePointu. Je to běžná produkční architektura, ne důvod SPFx opustit.
 
 ## Naše prostředí
 

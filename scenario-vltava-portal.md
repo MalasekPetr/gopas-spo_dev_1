@@ -81,8 +81,10 @@ Když student nestihne lab, převezme stav ze `solution/` posledního modulu dne
 
 ## Co se tento týden **nestaví**
 
-- **Vlastní backend API.** AadHttpClient se ukazuje proti Microsoft Graph; vlastní API
-  v Azure je mimo rozsah kurzu (a mimo podmínku „data zůstávají v tenantu").
+- **Vlastní backend API.** AadHttpClient se ukazuje proti Microsoft Graph; stavba vlastního
+  API v Azure je kvůli času mimo rozsah kurzu. Jako architektura je doporučená — v Azure
+  subscription zákazníka podmínku „data zůstávají v tenantu" splňuje (viz
+  [`platform-positioning`](day-1/platform-positioning/README.md)).
 - **Copilot UX components.** Preview funkce SPFx 1.24 — jen ukázka v `spfx-whats-next`.
 - **Řešení pro SharePoint Server.** Kurz cílí na SharePoint Online; on-premises podporuje jen
   starší verze SPFx (viz [`day-1/platform-positioning/`](./day-1/platform-positioning/)).

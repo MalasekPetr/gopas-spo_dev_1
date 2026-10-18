@@ -5,7 +5,7 @@
 
 ## Cíl
 
-Tabulka sedmi požadavků Vltava Servis, u každého zvolená technologie, místo, kam tečou data,
+Tabulka devíti požadavků Vltava Servis, u každého zvolená technologie, místo, kam tečou data,
 a kdo musí řešení schválit.
 
 **Jak lab číst:** každý krok končí **Checkpointem** — nesedí-li, nepokračuj.
@@ -21,7 +21,8 @@ a kdo musí řešení schválit.
 
 Zkopíruj tabulku do souboru `volba-technologie.md` (nebo na papír) a vyplň sloupec
 **Technologie**. Možnosti: JSON formátování · Power Apps / Power Automate · deklarativní
-agent · SPFx web part · SPFx extension · Teams aplikace s backendem.
+agent · SPFx web part · SPFx extension · SPFx + vlastní API (Azure) · Teams aplikace ·
+Copilot UX component · custom engine agent.
 
 | # | Požadavek | Technologie | Kam tečou data | Kdo schvaluje |
 |---|---|---|---|---|
@@ -32,14 +33,17 @@ agent · SPFx web part · SPFx extension · Teams aplikace s backendem.
 | 5 | Na **každé** stránce intranetu pruh s aktuálním oznámením (výpadek systému). | | | |
 | 6 | Zaměstnanec se zeptá „jaký mám nárok na služební telefon?" a dostane odpověď ze směrnic v knihovně. | | | |
 | 7 | V seznamu *Vybavení* tlačítko „Vydat zařízení", které zapíše vydání a pošle data do externího skladového systému dodavatele. | | | |
+| 8 | Vedoucí se v Copilotu zeptá „které notebooky jsou volné a komu jsou vydané?" a chce přímo v konverzaci **interaktivní přehled** s filtrem a tlačítkem „Vydat" — ne odstavec textu. | | | |
+| 9 | Agent pro servisní techniky **sám hlídá** termíny revizí zařízení, kombinuje data ze SharePointu a externího servisního systému, potřebuje vlastní orchestraci a model a běží v Teams i v Copilotu. | | | |
 
-**Checkpoint:** všech 7 řádků má vyplněnou technologii a u každé volby SPFx umíš jednou
+**Checkpoint:** všech 9 řádků má vyplněnou technologii a u každé volby SPFx umíš jednou
 větou říct, proč by levnější varianta (JSON formátování, Power Platform, agent) nestačila.
 
 ### 2. Doplň, kam tečou data
 
 U každého řádku napiš do sloupce **Kam tečou data** jednu z možností: *nikam (jen zobrazení)*
-· *SharePoint v tenantu* · *Microsoft Graph v tenantu* · *mimo tenant (kam?)*.
+· *SharePoint v tenantu* · *Microsoft Graph v tenantu* · *Azure v subscription zákazníka*
+· *mimo tenant (kam?)*.
 
 **Checkpoint:** aspoň jeden řádek máš označený *mimo tenant* a umíš ukázat, který konkrétní
 krok v něm data posílá ven.
@@ -48,14 +52,14 @@ krok v něm data posílá ven.
 
 Do sloupce **Kdo schvaluje** napiš, kdo musí řešení povolit, než ho uživatelé uvidí: *nikdo
 navíc (vlastník webu)* · *admin tenantu (App Catalog)* · *admin tenantu (API oprávnění)* ·
-*admin tenantu + zákazník (data mimo tenant)*.
+*admin tenantu (katalog agentů)* · *admin tenantu + zákazník (data mimo tenant)*.
 
 **Checkpoint:** u řádků, kde jsi zvolil SPFx a data jdou do Microsoft Graph, je ve sloupci
 **API oprávnění** — ne jen „App Catalog".
 
 ## Ověření
 
-- [ ] 7 řádků, každý s technologií, tokem dat a schvalovatelem.
+- [ ] 9 řádků, každý s technologií, tokem dat a schvalovatelem.
 - [ ] SPFx je zvolené jen tam, kde umíš říct, proč nestačí levnější varianta.
 - [ ] Řádek 7 má tok dat **mimo tenant** a schvalovatele včetně zákazníka.
 - [ ] **Negativní:** v tabulce není SharePoint Add-in ani Script Editor web part — obojí
@@ -64,8 +68,9 @@ navíc (vlastník webu)* · *admin tenantu (App Catalog)* · *admin tenantu (API
 ## Fallback
 
 - **Dvojice se zasekne na jednom řádku:** přeskočit, vrátit se při společném srovnání.
-- **Při časové tísni:** jen kroky 1 a 2 pro řádky 2, 3, 5 a 7 — to jsou čtyři komponenty,
-  které se budou celý týden stavět nebo rozebírat.
+- **Při časové tísni:** nejdřív vypustit řádky 8 a 9 (probrat je jen ve společném srovnání),
+  pak jen kroky 1 a 2 pro řádky 2, 3, 5 a 7 — to jsou čtyři komponenty, které se budou celý
+  týden stavět nebo rozebírat.
 
 Referenční řešení: [`reseni-volba-technologie.md`](reseni-volba-technologie.md) — otevřít až
 po společném srovnání.
@@ -75,3 +80,5 @@ po společném srovnání.
 - [Overview of the SharePoint Framework](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview)
 - [Column formatting](https://learn.microsoft.com/en-us/sharepoint/dev/declarative-customization/column-formatting)
 - [Declarative agents for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-declarative-agent)
+- [Overview of Copilot UX components](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/copilot/overview-copilot-apps)
+- [Custom engine agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-custom-engine-agent)

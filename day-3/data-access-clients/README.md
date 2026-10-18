@@ -90,8 +90,10 @@ const client = await this.context.aadHttpClientFactory.getClient('api://<applica
 const response = await client.get('https://<api-host>/api/orders', AadHttpClient.configurations.v1);
 ```
 
-V kurzu vlastní API nestavíme — data by opustila tenant (viz scénář). Mechanismus oprávnění je
-ale stejný jako u Graphu.
+V kurzu vlastní API kvůli času nestavíme. Mechanismus oprávnění je stejný jako u Graphu.
+Běží-li API v Azure subscription zákazníka, data hranici tenantu neopouštějí — viz
+[`platform-positioning`](../../day-1/platform-positioning/README.md). Celý postup včetně
+zabezpečení Azure Function: [Consume enterprise APIs secured with Azure AD in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient-enterpriseapi).
 
 ## Klíčové rozlišení
 
