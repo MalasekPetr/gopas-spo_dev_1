@@ -7,6 +7,60 @@
 Úvodní blok týdne. Než se cokoli nainstaluje, musí být jasné, **kdy** se SPFx vyplatí a kdy je
 to zbytečný kód na údržbu — a **kam** tečou data, když SPFx komponenta běží.
 
+## Kde stojíme
+
+```mermaid
+flowchart LR
+  GOC240["GOC240<br/>NIS2 a zakon o kyber. bezpecnosti"]
+
+  subgraph ADMIN["Sprava a governance -- IT pro"]
+    GOC222["GOC222<br/>SPO a M365: zaklady administrace"]
+    GOC223["GOC223<br/>Automatizace a migrace<br/>PnP PowerShell, Graph, provisioning"]
+    GOC224["GOC224<br/>Copilot a obsahove sluzby<br/>SAM, Copilot Studio, agenti"]
+    GOC248["GOC248<br/>ISMS v M365<br/>NIS2 a ISO/IEC 27001"]
+  end
+
+  subgraph DEV["Vyvoj -- pro-code"]
+    SPODEV1["SPO_DEV_1 -- JSTE ZDE<br/>SPFx: web party, extensions,<br/>Graph, PnPjs, nasazeni"]
+    SPOCOP["SPO_COPILOT<br/>Agents SDK a Copilot Extensions"]
+  end
+
+  GOC222 --> GOC223
+  GOC222 --> GOC224
+  GOC222 -->|predpoklad| GOC248
+  GOC240 -->|predpoklad| GOC248
+  GOC222 -->|pro-code vetev| SPODEV1
+  SPODEV1 -.->|doporucene pokracovani| SPOCOP
+  GOC224 -.->|sdilene bloky o agentech| SPOCOP
+
+  classDef here stroke-width:4px
+  class SPODEV1 here
+```
+
+- **GOC222** je společný základ správy. Končí rozhodovací osou „low-code až pro-code“ —
+  tady začínáme na její pro-code straně.
+- **SPO_DEV_1** je vývojářská větev: SharePoint **rozšiřujeme vlastním kódem**. Ostatní kurzy
+  ho spravují, automatizují nebo zabezpečují.
+- **Vltava Servis** je stejná fiktivní firma jako v GOC222 a GOC248. Kdo prošel GOC222, zná
+  její intranet — tady do něj píšeme kód.
+
+Materiály všech kurzů jsou veřejné na [github.com/MalasekPetr](https://github.com/MalasekPetr).
+
+### Co vám kurz dá
+
+```mermaid
+flowchart LR
+  D1["Den 1<br/>Holy stroj -> vlastni web part<br/>na vlastnim webu"]
+  D2["Den 2<br/>Konfigurace a UI<br/>property pane, lokalizace, React, Fluent UI"]
+  D3["Den 3<br/>Data a opravneni<br/>SPHttpClient, Graph, PnPjs, consent"]
+  D4["Den 4<br/>Rozsireni a nasazeni<br/>extensions, vykon, App Catalog"]
+  D5["Den 5<br/>Kvalita a provoz<br/>CI/CD, hardening, capstone"]
+  OUT(["Vystup: portal Vltava Servis<br/>overeny buildem a testy"])
+  D1 --> D2 --> D3 --> D4 --> D5 --> OUT
+```
+
+Pořadí bloků drží [`agenda.md`](../../agenda.md).
+
 ## Cíle
 
 - Vysvětlit, jak SPFx komponenta běží: v prohlížeči, v kontextu přihlášeného uživatele,
