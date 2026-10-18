@@ -3,17 +3,17 @@
 ## Timing
 
 - ~20 min výklad + 50 min lab + 5 min shrnutí.
-- Kroky 1–4 jsou lokální a spolehlivé; krok 6 závisí na GitHub účtech a síti. Při první
-  zádrhelu krok 6 jako demo.
+- Kroky 1–5 jsou lokální a spolehlivé; krok 6 je **vždy demo lektora**. Studenti s vlastním
+  GitHub účtem ho mohou zopakovat — nikoho k tomu nenutit (soukromí, commity jsou veřejně
+  podepsané jménem a e-mailem).
 
 ## Go/no-go — otestovat před během
 
 - **Pipeline jednou proběhnout na GitHubu** s referenčním řešením (vlastní repo lektora).
   Ověřeno jen lokálně 2026-10-16: build + 15 testů + brána velikosti. Na GitHubu **neověřeno**.
-- Mají studenti GitHub účty? (otevřená položka v `environment.md`). Pokud ne, rozhodnout
-  předem: demo, nebo založení účtů první hodinu dne 5 (+10 min).
-- Git na učebních strojích (instalován v pondělí, krok 6 `dev-environment` — kdo ho přeskočil,
-  instaluje teď).
+- Demo repozitář lektora připravený (soukromý), workflow jednou zelený.
+- Studentské GitHub účty se **nezakládají** a nevyžadují. Kdo chce vlastní běh, potřebuje git
+  identitu z volitelného kroku 11 v `dev-environment` (noreply e-mail).
 
 ## Tripwires
 

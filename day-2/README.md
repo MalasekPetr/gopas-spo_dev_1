@@ -3,6 +3,8 @@
 Rozcestník přestane mít odkazy natvrdo v kódu: oddělení si je nastaví v property pane, web part
 mluví česky i anglicky a je postavený z funkčních komponent a Fluent UI.
 
+> Ráno nejdřív aktualizuj materiály: `git -C "$HOME\gopas-spo_dev_1" pull`.
+
 | Pořadí | Blok | Slug | Typ | min |
 |---|---|---|---|---|
 | 1 | Property pane a dynamická konfigurace | [`property-pane`](property-pane/) | P | 90 |

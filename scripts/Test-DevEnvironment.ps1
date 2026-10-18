@@ -11,7 +11,7 @@
       2. fnm is on PATH.
       3. Node.js major version 22 and at least 22.14.0 (the engines range SPFx 1.23.2 generates).
       4. npm is on PATH.
-      5. git is on PATH (warning only -- the course can live without it until day 5).
+      5. git is on PATH (warning only -- without it, course materials are refreshed as a ZIP).
       6. Global npm packages: yo, @microsoft/generator-sharepoint at the expected version,
          @rushstack/heft; @pnp/cli-microsoft365 (warning only -- needed from day 4).
       7. gulp-cli is NOT installed globally (legacy toolchain; its presence usually means an old
@@ -100,7 +100,7 @@ else { Add-Result 'npm' 'FAIL' 'not on PATH -- comes with Node.js' }
 # ---- 5. git ----------------------------------------------------------------------------
 $gitVersion = Get-CommandOutput 'git' @('--version')
 if ($gitVersion) { Add-Result 'git' 'PASS' $gitVersion }
-else { Add-Result 'git' 'WARN' 'not on PATH -- needed on day 5 (CI/CD); install before then' }
+else { Add-Result 'git' 'WARN' 'not on PATH -- without git, refresh the course materials as a ZIP every morning' }
 
 # ---- 6 & 7. Global npm packages --------------------------------------------------------
 if ($npmVersion) {

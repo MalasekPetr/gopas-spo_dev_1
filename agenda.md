@@ -124,7 +124,7 @@ moderní stránce v `first-webpart` (jediná cesta k testování extensions ve �
 2. experiment s lazy loadingem v `performance-caching` (krok 3) jako demo s čísly z README (−15).
 **Nekrátit** `packaging-deployment` — capstone stojí na nasazeném řešení.
 
-**Den 5** — 1. pipeline na GitHubu v `ci-cd-quality` (krok 6) jako demo (−15);
+**Den 5** — 1. vlastní běhy pipeline studentů v `ci-cd-quality` (krok 6) vynechat, jen demo lektora (−15);
 2. `spfx-whats-next` jen výklad (−15).
 **Nekrátit** `capstone`.
 

@@ -3,6 +3,8 @@
 Řešení přeroste web party: banner oznámení na každé stránce a akce „Vydat zařízení" v seznamu.
 Balíček se zmenší proti středečnímu baseline a nasadí se jako verzovaný upgrade.
 
+> Ráno nejdřív aktualizuj materiály: `git -C "$HOME\gopas-spo_dev_1" pull`.
+
 | Pořadí | Blok | Slug | Typ | min |
 |---|---|---|---|---|
 | 1 | Extensions — Application Customizer, Command Set, Field Customizer | [`extensions`](extensions/) | P | 120 |

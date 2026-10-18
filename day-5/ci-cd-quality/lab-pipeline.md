@@ -1,6 +1,6 @@
 # Lab · Testy, brány a pipeline
 
-> Modul: `ci-cd-quality` · Odhad: 50 min · Režim: hands-on, lokálně + GitHub
+> Modul: `ci-cd-quality` · Odhad: 50 min · Režim: hands-on lokálně; GitHub jako demo lektora
 > Tenant: — · Scénář: [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md)
 
 ## Cíl
@@ -13,7 +13,9 @@ vyrobí `.sppkg` jen tehdy, když projdou testy i limit velikosti.
 
 ## Předpoklady
 
-- Řešení po dni 4. Pro kroky 5–6 GitHub účet a git.
+- Řešení po dni 4. Kroky 1–5 jsou lokální.
+- Krok 6 je **demo lektora**. Vlastní běh je volitelný: GitHub účet a git identita
+  (volitelný krok 11 v [`dev-environment`](../../day-1/dev-environment/lab-instalace-prostredi.md)).
 
 ## Kroky
 
@@ -64,7 +66,10 @@ Ze solution zkopíruj `.github/workflows/build.yml` do kořene **projektu**. Ov�
 
 **Checkpoint:** `Select-String .\.gitignore -Pattern 'package-lock'` nevrátí nic.
 
-### 6. Spusť pipeline na GitHubu
+### 6. Pipeline na GitHubu (demo lektora, vlastní běh volitelně)
+
+Lektor krok ukáže na svém repozitáři. Sleduj, co se v běhu `build` děje. Následující postup
+je pro ty, kdo si ho chtějí zopakovat na **vlastním** GitHub účtu — nikdo nemusí.
 
 1. Na GitHubu vytvoř **soukromý** repozitář `vltava-portal-<ini>`.
 2. V kořeni projektu:
@@ -90,7 +95,8 @@ kurzovního tenantu.
 
 - [ ] `npm run build` spouští 15 testů, chybějící překlad build zastaví.
 - [ ] Brána velikosti vrací exit kód podle limitu.
-- [ ] Pipeline na GitHubu je zelená a vyrobí artefakt `.sppkg` (nebo demo lektora).
+- [ ] Pipeline v demu lektora je zelená a vyrobí artefakt `.sppkg` (volitelně i ve vlastním
+      repozitáři).
 - [ ] **Negativní:** v repozitáři nejsou build výstupy ani identifikátory tenantu.
 
 ## Fallback
@@ -98,8 +104,8 @@ kurzovního tenantu.
 - **`Cannot find module 'fs'`** při buildu — chybí `@types/node` nebo řádek
   `/// <reference types="node" />` na začátku `loc.test.ts`.
 - **`npm ci` v pipeline hlásí chybějící lockfile** — `package-lock.json` nebyl commitnut.
-- **Bez GitHub účtu:** kroky 1–4 lokálně, kroky 5–6 sleduj na projektoru.
-- **Při časové tísni:** krok 6 jako demo lektora.
+- **Bez GitHub účtu (výchozí):** kroky 1–5 lokálně, krok 6 sleduj na projektoru.
+- **Při časové tísni:** vlastní běh kroku 6 vynechat — demo lektora stačí.
 
 ## Zdroje (Microsoft)
 

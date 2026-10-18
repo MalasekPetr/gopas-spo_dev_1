@@ -88,9 +88,10 @@ winget install --id Git.Git -e --source winget
 
 Zavři a znovu otevři terminál.
 
-**Checkpoint:** `git --version` vypíše verzi. Pokud instalace vyžaduje admin práva, která
-nemáš, **pokračuj dál** — git bude potřeba až v pátek (CI/CD) a kontrolní skript to vypíše
-jen jako varování.
+**Checkpoint:** `git --version` vypíše verzi. Git potřebuješ hlavně k tomu, abys měl každé
+ráno **aktuální materiály kurzu** (krok 10). Pokud instalace vyžaduje admin práva, která nemáš,
+**pokračuj dál** — materiály pak budeš stahovat jako ZIP a kontrolní skript to vypíše jen jako
+varování.
 
 ### 7. Nainstaluj globální nástroje SPFx
 
@@ -130,7 +131,7 @@ code --install-extension m365pnp.viva-connections-toolkit
 ```
 
 Druhé je **SharePoint Framework Toolkit** (komunitní, volitelné) — v kurzu ho nepotřebuješ,
-ale doma se hodí.
+ale doma se hodí, mimo jiné pro AI asistovaný vývoj (pátek, `spfx-whats-next`).
 
 **Checkpoint:** `code --list-extensions` obsahuje `dbaeumer.vscode-eslint`.
 
@@ -147,6 +148,34 @@ před spuštěním skriptu.
 
 **Checkpoint:** skript skončí zeleným `Environment ready` — všechny řádky `[PASS]`, nanejvýš
 `[WARN]` u gitu.
+
+> [!IMPORTANT] Repo kurzu je jen ke čtení
+> Materiály se během týdne opravují a doplňují. Každé ráno je aktualizuj:
+>
+> ```powershell
+> git -C "$HOME\gopas-spo_dev_1" pull
+> ```
+>
+> V klonu nic neměň a nic do něj necommituj — vlastní projekt máš v `$HOME\spodev`. Když
+> `pull` hlásí konflikt, něco jsi v klonu změnil; čistý stav vrátí
+> `git -C "$HOME\gopas-spo_dev_1" reset --hard origin/main`. Bez gitu stáhni a rozbal ZIP
+> každé ráno znovu.
+
+### 11. (Volitelné) Git identita pro vlastní repozitář
+
+**Jen pokud chceš** v pátek pustit pipeline v `ci-cd-quality` na **vlastním** GitHub účtu.
+Výchozí je demo lektora — bez tohoto kroku o nic nepřijdeš.
+
+```powershell
+git config --global user.name "<jmeno nebo prezdivka>"
+git config --global user.email "<id>+<ucet>@users.noreply.github.com"
+```
+
+Jméno a e-mail se zapíšou do každého commitu a na GitHubu jsou vidět. Použij **noreply adresu**
+z GitHubu (*Settings → Emails*), ne pracovní ani kurzovní e-mail. Na učebním stroji nastavení
+po kurzu smaž: `git config --global --unset user.name` a `--unset user.email`.
+
+**Checkpoint:** `git config --global user.email` vypíše noreply adresu — nebo krok přeskočíš.
 
 ## Ověření
 
@@ -182,8 +211,8 @@ před spuštěním skriptu.
   neopakovat donekonečna.
 - **Skript nejde spustit („not digitally signed")** — soubory ze ZIPu mají značku stažení
   z internetu: `Get-ChildItem "$HOME\gopas-spo_dev_1" -Recurse | Unblock-File`.
-- **Při časové tísni:** krok 9 vynechat, krok 6 odložit na pátek. Kroky 1–5, 7, 8 a 10 jsou
-  nutné pro zbytek dne.
+- **Při časové tísni:** kroky 9 a 11 vynechat, krok 6 přeskočit a materiály stáhnout jako ZIP.
+  Kroky 1–5, 7, 8 a 10 jsou nutné pro zbytek dne.
 
 ## Zdroje (Microsoft)
 

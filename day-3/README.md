@@ -3,6 +3,8 @@
 Řešení začne číst data: Adresář zaměstnanců z Microsoft Graph a Evidence vybavení ze seznamu
 přes PnPjs. Poprvé se nasazuje do tenantového App Catalogu a poprvé se měří velikost balíčku.
 
+> Ráno nejdřív aktualizuj materiály: `git -C "$HOME\gopas-spo_dev_1" pull`.
+
 | Pořadí | Blok | Slug | Typ | min |
 |---|---|---|---|---|
 | 1 | SPHttpClient, MSGraphClientFactory, AadHttpClient | [`data-access-clients`](data-access-clients/) | P | 75 |

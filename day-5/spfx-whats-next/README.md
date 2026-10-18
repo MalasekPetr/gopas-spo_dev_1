@@ -69,6 +69,58 @@ Zdroje: [Heft-based toolchain](https://learn.microsoft.com/en-us/sharepoint/dev/
 Postup analýzy: `m365 spfx project upgrade --toVersion <verze> --output md` (viz
 [`../../day-4/packaging-deployment/`](../../day-4/packaging-deployment/)).
 
+### AI asistovaný vývoj SPFx — v praxi, ne v kurzu
+
+V kurzu AI asistenta nepoužíváme: cílem je rozumět toolchainu a kódu, ne ho nechat napsat.
+V praxi ho lektor doporučuje — s podmínkou, že model dostane aktuální fakta.
+
+**Zkušenost lektora** (dlouhodobé sledování vlastních projektů, 2026, subjektivní): SPFx
+aplikace od analýzy po nasazení a dokumentaci vznikají zhruba **dvakrát rychleji** než bez AI.
+Největší zrychlení je ve scaffoldu a opakujících se vzorech; jinde je asistenta nutné vést
+a každou změnu schválit a místy zdržuje. Platí to pro zkušeného vývojáře — u juniorů je
+zrychlení podle stejné zkušenosti minimální. Proto se v kurzu nejdřív učí toolchain bez AI:
+kdo ho nezná, nepozná, kdy mu model radí špatně.
+
+**Co říkají měření:** randomizovaná studie METR (16 zkušených vývojářů, 246 úkolů, nástroje
+z počátku 2025) naměřila **zpomalení o 19 %** — a vývojáři si přitom mysleli, že byli o 20 %
+rychlejší. Opakování s nástroji z konce 2025 (57 vývojářů, 800+ úkolů) ukazuje zrychlení
+o 4–18 %, autoři ho ale sami označují za nespolehlivý signál. Pointa: **měř vlastní čas,
+pocit klame.**
+
+Co AI potřebuje, aby zrychlovala, a ne generovala rychle špatný kód:
+
+- **rozhodnutou architekturu** — agent dostane zadání a hotový návrh, ne „udělej web part",
+- **instrukční soubor v repu** s fakty o projektu (viz níže),
+- **silné typy** — TypeScript drží agenta v mantinelech,
+- **testy, lint a brány v buildu** — agent si výsledek ověří sám a chyba neprojde.
+
+Přesně tyhle mantinely kurz staví celý týden: typované služby, ESLint, Jest testy a brána
+velikosti v `ci-cd-quality`. Projekt z kurzu je tak dobrý výchozí bod i pro práci s AI.
+
+| Nástroj | Co dělá |
+|---|---|
+| **GitHub Copilot** ve VS Code (agent mode) | píše a upravuje kód v projektu, spouští build |
+| **Claude Code** (terminál, VS Code) | agent nad celým projektem; instrukce čte z `CLAUDE.md` v repu |
+| **SharePoint Framework Toolkit** | chat participant `@spfx` v Copilot Chatu; v agent mode nástroje jako `SharePointFrameworkProjectUpgrade` nebo `SharePointAppInstall` |
+| **Microsoft Learn MCP Server** | `https://learn.microsoft.com/api/mcp` — model čte aktuální dokumentaci Microsoftu místo toho, co si pamatuje; zdarma, bez přihlášení |
+
+Proč u SPFx zvlášť opatrně:
+
+- **Modely znají hlavně gulp éru.** Navrhnou `gulp serve`, plošné zvedání závislostí nebo
+  `npm audit fix` — přesně to, co kurz zakazuje. Pomáhá instrukční soubor v repu projektu
+  (`.github/copilot-instructions.md` pro GitHub Copilot, `CLAUDE.md` pro Claude Code), který
+  zafixuje fakta: Heft, Node.js 22, React 17, verze jen přes `m365 spfx project upgrade`.
+- **Nástroje v agent mode mění tenant.** Nástroje SPFx Toolkitu zakládají a mažou weby,
+  seznamy a aplikace v tenantu, ke kterému je Toolkit přihlášený. Před každým během ověř,
+  o který tenant jde.
+- **Do chatu nepatří identifikátory a tajemství** — tenant ID, Client ID, klíče k API.
+  Stejné pravidlo jako pro bundle (`diagnostics-hardening`).
+
+Zdroje: [SharePoint Framework Toolkit](https://github.com/pnp/vscode-viva),
+[Microsoft Learn MCP Server](https://learn.microsoft.com/en-us/training/support/mcp),
+[METR — Early-2025 AI and experienced OS developers (2025-07-10)](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/),
+[METR — Uplift update (2026-02-24)](https://metr.org/blog/2026-02-24-uplift-update/).
+
 ## Klíčové rozlišení
 
 - **RC vs. GA vs. roadmapa** — RC jde vygenerovat a změřit; roadmapa je záměr.

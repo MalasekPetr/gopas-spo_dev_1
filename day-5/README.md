@@ -3,6 +3,8 @@
 Řešení dostane pipeline, která hlídá lint, testy a velikost balíčku, a diagnostiku pro provoz.
 Den končí obhajobou řešení a code review. **Konec v 15:00.**
 
+> Ráno nejdřív aktualizuj materiály: `git -C "$HOME\gopas-spo_dev_1" pull`.
+
 | Pořadí | Blok | Slug | Typ | min |
 |---|---|---|---|---|
 | 1 | CI/CD a quality gates | [`ci-cd-quality`](ci-cd-quality/) | P | 75 |
@@ -16,7 +18,7 @@ Celkem **270 min**.
 
 Škrtá se odshora:
 
-1. Pipeline na GitHubu v `ci-cd-quality` (krok 6) jako demo (−15).
+1. Vlastní běhy pipeline studentů v `ci-cd-quality` (krok 6) vynechat — jen demo lektora (−15).
 2. `spfx-whats-next` jen výklad (−15).
 
 **Nekrátit** `capstone`.

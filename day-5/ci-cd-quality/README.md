@@ -88,8 +88,9 @@ Zdroj: [Build pipelines for SPFx with Azure DevOps](https://learn.microsoft.com/
 
 ## Naše prostředí
 
-- GitHub účet studenta (otevřená položka v [`../../environment.md`](../../environment.md)).
-  Bez něj: celý lab lokálně (kroky 1–4), pipeline jako demo lektora.
+- Lab je lokální (kroky 1–5), pipeline na GitHubu je **demo lektora**. GitHub účet studenta
+  se nevyžaduje — vlastní běh je volitelný, aby nikdo nemusel publikovat své jméno nebo
+  e-mail v commitech.
 - Na `ubuntu-latest` je PowerShell 7 předinstalovaný — skript běží beze změny.
 
 ## Lab

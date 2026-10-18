@@ -75,7 +75,7 @@ tam, kde to jde.
 | 4 | `extensions` | W | — |
 | 4 | `performance-caching` | W | — |
 | 4 | `packaging-deployment` | W + **T** | tenantový App Catalog (upgrade na 1.1.0.0); site collection katalog jen demo |
-| 5 | `ci-cd-quality` | L | GitHub účet studenta a git (otevřená položka) |
+| 5 | `ci-cd-quality` | L | pipeline = demo lektora; GitHub účet studenta jen volitelně |
 | 5 | `diagnostics-hardening` | W | — |
 | 5 | `spfx-whats-next` | D | — |
 | 5 | `capstone` | W | — |
@@ -101,7 +101,8 @@ tam, kde to jde.
       Microsoft Graph (jinak den 3 neměří výchozí stav a fallback nenastane).
 - [ ] **Aplikace PnP pro interaktivní přihlášení** v `cloudedu.cz` (den 3, skript seznamu
       `Equipment`) — Client ID v lektorském souboru, ne v repu.
-- [ ] **GitHub účty studentů** (den 5, pipeline) — nebo pipeline jako demo lektora.
+- [ ] **Demo repozitář lektora** (den 5, pipeline) — soukromý, workflow jednou zelený.
+      GitHub účty studentů se nevyžadují.
 - [ ] **Zkušební průchod labů na čistém účtu** — u každého dne jsou v `instructor-notes.md`
       kroky označené „neověřeno na tenantu".
 
