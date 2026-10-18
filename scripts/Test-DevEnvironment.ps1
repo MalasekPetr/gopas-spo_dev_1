@@ -13,7 +13,7 @@
       4. npm is on PATH.
       5. git is on PATH (warning only -- the course can live without it until day 5).
       6. Global npm packages: yo, @microsoft/generator-sharepoint at the expected version,
-         @rushstack/heft.
+         @rushstack/heft; @pnp/cli-microsoft365 (warning only -- needed from day 4).
       7. gulp-cli is NOT installed globally (legacy toolchain; its presence usually means an old
          tutorial was followed).
       8. SPFX_SERVE_TENANT_DOMAIN is set and points to a *.sharepoint.com host.
@@ -129,6 +129,10 @@ if ($npmVersion) {
 
     if ($globalDeps.ContainsKey('@rushstack/heft')) { Add-Result 'Heft (global)' 'PASS' $globalDeps['@rushstack/heft'] }
     else { Add-Result 'Heft (global)' 'FAIL' 'npm install @rushstack/heft --global' }
+
+    $cli = '@pnp/cli-microsoft365'
+    if ($globalDeps.ContainsKey($cli)) { Add-Result 'm365 CLI (global)' 'PASS' $globalDeps[$cli] }
+    else { Add-Result 'm365 CLI (global)' 'WARN' "npm install $cli --global -- needed on day 4" }
 
     if ($globalDeps.ContainsKey('gulp-cli') -or $globalDeps.ContainsKey('gulp')) {
         Add-Result 'gulp NOT installed' 'WARN' 'gulp is global -- legacy toolchain; SPFx 1.23 projects do not use it'

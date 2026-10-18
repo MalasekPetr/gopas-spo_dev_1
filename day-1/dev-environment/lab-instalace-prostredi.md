@@ -95,14 +95,16 @@ jen jako varování.
 ### 7. Nainstaluj globální nástroje SPFx
 
 ```powershell
-npm install --global yo @microsoft/generator-sharepoint@1.23.2 @rushstack/heft
+npm install --global yo @microsoft/generator-sharepoint@1.23.2 @rushstack/heft @pnp/cli-microsoft365
 npm ls --global --depth=0
 ```
 
 Varování `npm warn deprecated ...` během instalace jsou běžná. Chyba je jen `npm error`.
+CLI for Microsoft 365 (`m365`) poprvé použijeme ve čtvrtek při upgradu projektu; přihlašovat
+se k tenantu teď **nemusíš**.
 
-**Checkpoint:** výpis `npm ls` obsahuje `yo@…`, `@microsoft/generator-sharepoint@1.23.2`
-a `@rushstack/heft@…`. **Neobsahuje** `gulp` ani `gulp-cli`.
+**Checkpoint:** výpis `npm ls` obsahuje `yo@…`, `@microsoft/generator-sharepoint@1.23.2`,
+`@rushstack/heft@…` a `@pnp/cli-microsoft365@…`. **Neobsahuje** `gulp` ani `gulp-cli`.
 
 ### 8. Nastav adresu workbenche
 

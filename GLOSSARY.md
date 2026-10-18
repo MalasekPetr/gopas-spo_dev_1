@@ -60,7 +60,7 @@ vpravo to, co píšeme my.
 | **Yeoman** + generátor SPFx | `yo`, `@microsoft/generator-sharepoint` | scaffold projektu a přidávání komponent |
 | **Heft** | `@rushstack/heft` | build, serve, testy, balení |
 | **SPFx CLI** | — | budoucí náhrada Yeoman generátoru; v kurzu jen jako delta |
-| **CLI for Microsoft 365** | `@pnp/cli-microsoft365` | nasazení a upgrade projektů (`m365 spfx project upgrade`) |
+| **CLI for Microsoft 365** | `@pnp/cli-microsoft365` | instalované globálně (den 1); upgrade projektů (`m365 spfx project upgrade`, pracuje se složkou projektu), nasazení. `m365 login` vyžaduje vlastní registraci aplikace v Entra ID (`appId` + `tenant`, průvodce `m365 setup`) |
 | **PnPjs** | `@pnp/sp`, `@pnp/graph` | fluent API nad SharePoint REST a Microsoft Graph |
 | **Fluent UI v8** | `@fluentui/react` | UI knihovna, kterou generátor SPFx dává do React šablony |
 | **Fluent UI v9** | `@fluentui/react-components` | novější generace Fluent UI; v SPFx volitelná |

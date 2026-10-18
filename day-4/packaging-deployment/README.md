@@ -98,11 +98,20 @@ Přechod na novější verzi SPFx (např. 1.23 → 1.24) je změna závislostí,
 a toolchainu najednou. Release notes doporučují CLI for Microsoft 365:
 
 ```powershell
-npx -p @pnp/cli-microsoft365@latest m365 spfx project upgrade --toVersion 1.23.2 --output md
+m365 spfx project upgrade --toVersion 1.23.2 --output md
 ```
 
-Příkaz projekt **analyzuje** a vypíše seznam změn — nic sám neprovede.
+Příkaz projekt **analyzuje** a vypíše seznam změn — nic sám neprovede. CLI je nainstalované
+globálně od pondělí (`dev-environment`); příkaz se spouští ve složce projektu a pracuje se
+soubory na disku, ne s tenantem.
 Zdroj: [SPFx v1.23.2 release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.2).
+
+> [!WARNING] `npm-check-updates` (`ncu -u`) ani `npm update` v SPFx projektu ne
+> Zvednou závislosti plošně na nejnovější verze — mimo sadu, kterou Microsoft pro danou verzi
+> SPFx testuje (React, TypeScript, rig, `@microsoft/sp-*`). Výsledkem je rozbitý build nebo
+> chyba až za běhu. Verze v SPFx projektu se mění jen upgradem celé verze SPFx podle výstupu
+> `m365 spfx project upgrade`. Ze stejného důvodu se nespouští `npm audit fix` (pátek,
+> `diagnostics-hardening`).
 
 ## Klíčové rozlišení
 
