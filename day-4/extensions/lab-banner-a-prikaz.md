@@ -37,9 +37,18 @@ a `@microsoft/sp-dialog` ve verzi 1.23.2.
 
 ### 2. Napiš banner
 
-Ze solution zkopíruj do `src/extensions/portalBanner/`: `PortalBannerApplicationCustomizer.ts`,
+Ze [solution](../packaging-deployment/solution/vltava-portal/src/extensions/portalBanner/)
+zkopíruj do `src/extensions/portalBanner/`: `PortalBannerApplicationCustomizer.ts`,
 `PortalBanner.module.scss`, `loc/myStrings.d.ts`, `loc/en-us.js`, `loc/cs-cz.js`
-(**manifest nepřepisuj**).
+(**manifest nepřepisuj**). Z kořene projektu (`$HOME\spodev\vltava-portal-<ini>`):
+
+```powershell
+$sol = "$HOME\gopas-spo_dev_1\day-4\packaging-deployment\solution\vltava-portal"
+$src = "$sol\src\extensions\portalBanner"
+$dst = '.\src\extensions\portalBanner'
+Copy-Item "$src\PortalBannerApplicationCustomizer.ts", "$src\PortalBanner.module.scss" $dst -Force
+Copy-Item "$src\loc\*" "$dst\loc\" -Force
+```
 
 **Checkpoint:** v kódu banneru není `innerHTML`, `React` ani `@fluentui`. Text se vkládá přes
 `textContent`.
@@ -79,8 +88,21 @@ a **žádné** okno `alert` — zpráva je text, ne HTML.
 
 ### 5. Napiš příkaz „Vydat zařízení"
 
-Ze solution zkopíruj do `src/extensions/issueEquipment/`: `IssueEquipmentCommandSet.ts`,
-`loc/myStrings.d.ts`, `loc/en-us.js`, `loc/cs-cz.js`. V manifestu nahraď celý blok `items`:
+Ze [solution](../packaging-deployment/solution/vltava-portal/src/extensions/issueEquipment/)
+zkopíruj do `src/extensions/issueEquipment/`: `IssueEquipmentCommandSet.ts`,
+`loc/myStrings.d.ts`, `loc/en-us.js`, `loc/cs-cz.js` a celý `src/services/equipmentService.ts`
+(proti dni 3 přibyl jen import `'@pnp/sp/site-users/web'` a metoda `issue`):
+
+```powershell
+$sol = "$HOME\gopas-spo_dev_1\day-4\packaging-deployment\solution\vltava-portal"
+$src = "$sol\src\extensions\issueEquipment"
+$dst = '.\src\extensions\issueEquipment'
+Copy-Item "$src\IssueEquipmentCommandSet.ts" $dst -Force
+Copy-Item "$src\loc\*" "$dst\loc\" -Force
+Copy-Item "$sol\src\services\equipmentService.ts" .\src\services\ -Force
+```
+
+V manifestu nahraď celý blok `items`:
 
 ```json
 "items": {
@@ -91,10 +113,9 @@ Ze solution zkopíruj do `src/extensions/issueEquipment/`: `IssueEquipmentComman
 }
 ```
 
-(v souboru s diakritikou: *Vydat zařízení*). Do `src/services/equipmentService.ts` doplň ze
-solution import `'@pnp/sp/site-users/web'`, metodu `issue` do rozhraní a její implementaci.
+(v souboru s diakritikou: *Vydat zařízení*).
 
-**Checkpoint:** `npm start` zkompiluje bez chyb.
+**Checkpoint:** `npm start` zkompiluje bez chyb; `equipmentService.ts` má metodu `issue`.
 
 ### 6. Vyzkoušej příkaz v seznamu
 
