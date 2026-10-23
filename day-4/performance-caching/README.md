@@ -16,6 +16,55 @@ a změří se i dvě rady z internetu, které tak samozřejmé nejsou.
 
 ## Výklad
 
+### Co prohlížeč stahuje, když je na stránce web part
+
+Velikost bundlu je důležitá proto, že každý web part na stránce znamená řetěz požadavků.
+Podle dokumentace k lokalizaci obsahuje **manifest** komponenty v `loaderConfig.scriptResources`
+cestu k bundlu a ke každému jazykovému souboru; v produkčním buildu má každý jazyk **vlastní
+soubor** a SharePoint stáhne jen ten, který odpovídá jazyku webu (jinak `defaultPath`)
+([Localize SPFx web parts](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/guidance/localize-web-parts),
+sekce *Localization files in the release build*).
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant L as SPFx module loader
+  participant H as Asset host
+  B->>L: page with web part
+  L->>H: component manifest
+  L->>H: bundle (entry module)
+  L->>H: strings file for site language
+  Note over L,H: later, only if code calls import()
+  L->>H: chunk
+```
+
+Jak to vypadá ve `vltava-portal` — výpis obsahu `.sppkg` dne 4 (build 2026-10-16, lektorský
+stroj; velikosti sedí s [`mereni-den-4.md`](mereni-den-4.md)):
+
+| Soubor v `ClientSideAssets/` | Bajty |
+|---|---|
+| `equipment-web-part_<hash>.js` | 454 270 |
+| `EquipmentWebPartStrings_cs-cz_<hash>.js` | 930 |
+| `EquipmentWebPartStrings_en-us_<hash>.js` | 896 |
+| `portal-banner-application-customizer_<hash>.js` | 5 499 |
+| `PortalBannerApplicationCustomizerStrings_cs-cz_<hash>.js` | 80 |
+
+Dvě věci z toho plynou:
+
+- **Jazykový soubor je zanedbatelný, bundle ne.** Optimalizovat má smysl bundle.
+- **Knihovny se nesdílejí mezi komponentami.** Dokumentace: knihovny třetích stran SPFx
+  standardně vloží do bundlu **každé** komponenty, která je importuje, takže je uživatel
+  stahuje opakovaně
+  ([Optimize builds for production](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/optimize-builds-for-production)).
+  Evidence (454 KB) a Adresář (235 KB) na jedné stránce = dvě kopie Fluent UI. Naopak
+  `@microsoft/sp-lodash-subset` je podle téže stránky na každé stránce SharePointu už načtený
+  a do bundlu se nepřidává.
+
+HTTP cache prohlížeče pomáhá jen s opakovaným načtením: když je stejná knihovna ze stejné
+URL, prohlížeč při dalším požadavku použije uloženou kopii (tamtéž). První návštěvu to
+nezrychlí. Podrobnosti a jak to ověřit v F12:
+[`explainer-page-loading.md`](explainer-page-loading.md).
+
 ### Oprava, která funguje: přímý import
 
 ```typescript
@@ -48,6 +97,44 @@ samostatného souboru, který se stáhne až při prvním vykreslení. Zní to j
 
 Oba experimenty jsou v řešení **vrácené** — rozhodlo číslo, ne doporučení.
 
+### Jak `import()` dělí bundle — a proč tady nepomohl
+
+Statický `import` na začátku souboru webpack zabalí do bundlu komponenty. Volání `import()`
+uprostřed kódu je pro webpack **bod rozdělení**: modul a jeho závislosti dá do samostatného
+souboru (chunku), který se stáhne až ve chvíli, kdy kód `import()` opravdu zavolá. Komentář
+`webpackChunkName` dá chunku čitelné jméno
+([SPFx guidance on dynamic loading](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/dynamic-loading));
+chunk, který webpack vyčlení sám, má jméno číslo (`chunk.741` v [`mereni-den-4.md`](mereni-den-4.md)).
+
+```typescript
+// Pattern from the Microsoft guidance: code used only in the property pane.
+protected loadPropertyPaneResources(): Promise<void> {
+  return import(
+    /* webpackChunkName: 'portal-property-pane' */
+    './PortalPropertyPane'
+  ).then(module => {
+    this._propertyPane = new module.PortalPropertyPane(this);
+  });
+}
+```
+
+`loadPropertyPaneResources()` se podle téže stránky spustí před zobrazením panelu vlastností
+— kód panelu tak stahuje jen editor stránky, ne každý čtenář. (Ukázka ilustruje vzor;
+v řešení `vltava-portal` není.)
+
+Dokumentace sama dodává: **ne každý soubor či knihovnu má smysl načítat dynamicky**;
+lepší je seskupit kód jedné schopnosti do jednoho chunku. Naše měření ukazují proč:
+
+| Podmínka, aby se chunk vyplatil | Panel „Přidat vybavení" | Celá Evidence |
+|---|---|---|
+| Kód v chunku má **vlastní** velké závislosti | ne — Panel, TextField, Dropdown sdílí jádro Fluent UI s `DetailsList` | ano, ale… |
+| Většina návštěv kód **nepotřebuje** | ano | **ne** — web part se kreslí hned |
+| Výsledek | hlavní bundle +9 892 B | celkem +33 986 B, webpack sám vyčlenil `chunk.741` (432 113 B) |
+
+Jak poznat zbytečný chunk bez buildu navíc: v F12 → *Network* se chunk stáhne **hned při
+načtení stránky** (pak jen přidal požadavek), nebo je hlavní bundle po rozdělení skoro stejně
+velký (chunk neodnesl závislosti, jen kód komponenty).
+
 ### Cache: kam s daty tenantu
 
 Adresář hledá v Graphu při každém dopsání hledaného textu. Stejné hledání během 5 minut teď
@@ -67,6 +154,64 @@ Adresář zaměstnanců s telefony v `localStorage` sdíleného počítače je �
 
 Zdroj PnPjs: [Caching behavior](https://pnp.github.io/pnpjs/queryable/behaviors/#caching).
 
+### Read-through cache krok za krokem
+
+`src/utils/sessionCache.ts` má 42 řádků a jednu exportovanou funkci `cached(key, ttlMs, load)`.
+Služba adresáře ji obaluje kolem volání Graphu:
+
+```typescript
+search(query: string): Promise<IEmployee[]> {
+  const needle: string = query.replace(/"/g, '').trim();
+  // The same search within 5 minutes is served from the cache, not from Graph.
+  return cached(`users:${needle.toLocaleLowerCase()}`, SEARCH_CACHE_MS, () => searchGraph(needle));
+},
+```
+
+```mermaid
+flowchart TB
+  Q[search: key users:needle] --> M{Memory Map<br/>hit and not expired?}
+  M -->|yes| R[return value]
+  M -->|no| S{sessionStorage<br/>hit and not expired?}
+  S -->|yes| P[copy to memory] --> R
+  S -->|no| G[load: Graph /users]
+  G --> W[write memory + sessionStorage<br/>expires = now + 5 min] --> R
+```
+
+Rozhodnutí v kódu a proč:
+
+- **Klíč je normalizovaný** (`toLocaleLowerCase`, bez uvozovek a mezer na krajích). Bez toho
+  jsou „Novak" a „novak" dva záznamy a cache se míjí. Symptom: v *Network* jde druhé hledání
+  do Graphu, i když výsledky jsou stejné.
+- **Expirace se ukládá s hodnotou** (`expires`), ne jako časovač. Záznam ze `sessionStorage`
+  přežije F5 a jeho platnost se po načtení znovu porovná s `Date.now()`.
+- **Každý přístup ke storage je v `try/catch`.** Úložiště může zakázat politika prohlížeče
+  nebo může dojít kvóta; cache pak tiše spadne na paměť, Graph funguje dál.
+- **Chyba se necachuje.** Když `load()` vyhodí výjimku, nic se nezapíše — další pokus jde
+  znovu do Graphu.
+- **Dvě souběžná stejná hledání cache nesloučí** — obě se minou a obě zavolají Graph.
+  Proti tomu chrání debounce psaní (`useDebounce`, 400 ms), ne cache.
+- **Presence se necachuje vůbec** — mění se v řádu minut a 5 minut stará „dostupnost" je
+  horší než žádná.
+
+Proč vlastní util a ne PnPjs `Caching`: adresář volá Graph přes `MSGraphClientV3`, ne přes
+PnPjs, takže behavior PnPjs se ho netýká. Pro data ze SharePointu přes PnPjs je `Caching`
+hotová alternativa: výchozí úložiště `session`, výchozí expirace 5 minut, klíč a expiraci lze
+přizpůsobit (`keyFactory`, `expireFunc`); podle ukázkového kódu cachuje jen GET, pokud
+požadavek nemá hlavičku `CacheAlways`
+([PnPjs behaviors](https://pnp.github.io/pnpjs/queryable/behaviors/#caching)).
+
+### Hranice dat: co do cache nepatří
+
+Výkonová cache je kopie dat tenantu **mimo tenant** — v prohlížeči uživatele. Před každou
+cache se proto ptej na tři věci:
+
+1. **Kde kopie skončí** — paměť a `sessionStorage` zmizí se stránkou, resp. kartou;
+   `localStorage` a IndexedDB zůstávají na zařízení (tabulka výše).
+2. **Jak rychle data stárnou** — presence ne, seznam lidí na 5 minut ano.
+3. **Co když se změní oprávnění** — cache vrací, co uživatel viděl **při zápisu**. Po odebrání
+   práv vidí uložený výsledek až do expirace. TTL je tedy i bezpečnostní parametr, ne jen
+   výkonový.
+
 ## Klíčové rozlišení
 
 - **Velikost počátečního bundlu vs. celková velikost** — lazy loading mění první, často
@@ -75,6 +220,12 @@ Zdroj PnPjs: [Caching behavior](https://pnp.github.io/pnpjs/queryable/behaviors/
   co zůstane na zařízení.
 - **Rada vs. měření** — obojí z tohoto bloku se dá najít jako „best practice"; jedno platí,
   dvě ne.
+- **Bundle vs. jazykový soubor** — bundle stovky KB, strings stovky bajtů; optimalizuje se
+  bundle.
+- **Statický `import` vs. `import()`** — první jde do bundlu vždy, druhý vytvoří chunk
+  stažený až při volání.
+- **TTL jako výkon vs. TTL jako bezpečnost** — po odebrání oprávnění cache vrací stará data
+  až do expirace.
 
 ## Naše prostředí
 
@@ -94,6 +245,10 @@ v pátek obhajuje.
 
 - [Customize webpack with the Heft Webpack Patch plugin](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/customize-heft-toolchain-customize-webpack-config)
 - [Debug SharePoint Framework solutions on modern pages](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/debug-modern-pages)
+- [SharePoint Framework guidance on dynamic loading of packages](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/dynamic-loading)
+- [Optimize SharePoint Framework builds for production](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/optimize-builds-for-production)
+- [Localize SharePoint Framework client-side web parts](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/guidance/localize-web-parts)
+- [Host your client-side web part from Microsoft 365 CDN](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/hosting-webpart-from-office-365-cdn)
 
 ## Zdroje (třetí strana — React, PnPjs)
 

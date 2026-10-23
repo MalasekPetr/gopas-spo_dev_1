@@ -47,6 +47,33 @@ Zdroje: [Connect to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sha
 > lektor**, na projektoru, a jen `User.Read.All`. Žádost o `Presence.Read.All` zůstane
 > neschválená celý týden: na ní se ověřuje fallback.
 
+### Delegated vs. application: za koho web part jedná
+
+Microsoft identity platform rozlišuje dva druhy přístupu
+([Permissions and consent overview](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview)):
+
+| | Delegated (scope) | Application (app role) |
+|---|---|---|
+| Kdo jedná | aplikace **jménem přihlášeného uživatele** | aplikace sama za sebe, bez uživatele |
+| Typická aplikace | web, SPA, mobilní | služba na pozadí, daemon |
+| Dosah | nikdy víc, než smí uživatel | všechna data, ke kterým oprávnění vede |
+| Kdo schvaluje | uživatel za sebe nebo admin za všechny | jen admin |
+
+Web part běží v prohlížeči přihlášeného uživatele. Schválená oprávnění z API access se
+přidávají jako **delegated** aplikaci *SharePoint Online Client Extensibility Web Application
+Principal* ([Manage access to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sharepoint/api-access)).
+Pro Adresář to znamená:
+
+- `User.Read.All` (delegated) **neznamená**, že web part přečte libovolná data o komkoli.
+  Výsledek je průnik: co dovoluje scope **a** co smí přihlášený uživatel. Dokumentace to
+  ilustruje na `Files.Read.All` — delegovaná verze čte jen soubory, ke kterým má přístup
+  uživatel, aplikační verze všechny soubory v tenantu.
+- Aplikační oprávnění do interaktivního řešení nepatří: Microsoft výslovně varuje, že
+  aplikační oprávnění v interaktivním scénáři mohou nechtěně **povýšit práva uživatele**
+  a obejít politiky nastavené adminem
+  ([Best practices for Microsoft Graph](https://learn.microsoft.com/en-us/graph/best-practices-concept)).
+  Patří do aplikací bez přihlášeného uživatele — služba na pozadí, daemon.
+
 ### Co Adresář žádá a proč
 
 ```json
@@ -62,7 +89,68 @@ Zdroje: [Connect to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sha
 | `Presence.Read.All` | dostupnost (Teams presence) | ano, pro čtení presence jiných uživatelů |
 
 `resource` je **zobrazovaný název** aplikace (`Microsoft Graph`), ne její ID — název je stejný
-ve všech tenantech, ID ne.
+ve všech tenantech, ID ne. Zadání `objectId` místo názvu skončí chybou při schvalování
+([Connect to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)).
+
+### Životní cyklus žádosti
+
+```mermaid
+stateDiagram-v2
+  [*] --> Pending: sppkg deployed to tenant App Catalog
+  Pending --> Approved: Approve (Global Admin for Graph)
+  Pending --> Rejected: Reject
+  Approved --> Removed: Remove access
+  Rejected --> [*]: request disappears
+  Removed --> [*]: request disappears
+  Approved --> Approved: another request for same resource adds scopes
+```
+
+Co který přechod znamená podle dokumentace
+([Manage access](https://learn.microsoft.com/en-us/sharepoint/api-access),
+[Connect to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)):
+
+- **Reject** — žádost zmizí ze stránky; aplikace v App Catalogu zůstane a na webech může
+  „nefungovat podle očekávání". Nový pokus = nová žádost se stejným `resource` a `scope`,
+  tedy znovu nasadit balíček.
+- **Remove access** — totéž pro už schválené oprávnění. Odvolání **nezneplatní tokeny, které
+  už byly vydané** — platí do vypršení. Proto po odvolání chvíli trvá, než se změna v web
+  partu projeví.
+- **Schválení dalšího scope** ke zdroji, který už nějaká oprávnění má, scope **přidá**
+  k dříve schváleným.
+- **Schválení už schváleného** scope (přes PowerShell / CLI) skončí chybou. SharePoint při
+  vzniku žádosti nekontroluje, zda už oprávnění existuje.
+- **Žádná z těchto akcí nesahá na App Catalog** ani na nasazená řešení — mění se jen to, zda
+  klient dostane token s daným scope.
+
+### Celý tenant znamená celý tenant
+
+Věta *„granted to the whole tenant"* má konkrétní bezpečnostní dopad: jakmile je oprávnění
+schválené, může ho využít **jakýkoli požadavek na straně klienta v tenantu** — nejen SPFx
+řešení, ale i jiné skripty
+([Connect to Entra ID-secured APIs — Considerations](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)).
+Schválit `User.Read.All` „pro Adresář" ve skutečnosti znamená schválit ho pro každý kód, který
+v tenantu běží na stránkách SharePointu.
+
+Z toho plynou tři pravidla:
+
+1. **Least privilege** — žádat jen scope, který funkce skutečně potřebuje. Graph to formuluje
+   jako první zásadu ([Best practices for Microsoft Graph](https://learn.microsoft.com/en-us/graph/best-practices-concept));
+   v Adresáři je to důvod, proč tabulka výše zdůvodňuje, proč nestačí `User.ReadBasic.All`.
+2. **Schválení je rozhodnutí admina o tenantu, ne o vašem řešení** — patří k němu záznam, kdo
+   a proč schválil, a plán odvolání.
+3. **Admin má i hrubou páku**: službu *SharePoint Online Client Extensibility* jde celou
+   vypnout (`Disable-SPOTenantServicePrincipal`); pak `MSGraphClient` ani `AadHttpClient`
+   token nedostanou. Měnit tento principal ručně v Entra admin centru se nepodporuje —
+   spravuje se jen přes API access.
+
+> [!WARNING] Ověřit k datu běhu — stav k 2026-10.
+> Cestou k oprávnění „jen pro moje řešení" byly *isolated web parts*
+> (`isDomainIsolated: true` v `package-solution.json`): samostatná aplikace v Entra ID pro
+> každé řešení a web part v `<iframe>` na vlastní doméně. Funkce je podle dokumentace
+> deprecated a podle ohlášení **retirovaná k 2. 4. 2026** — ověřit
+> ([Isolated web parts](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/isolated-web-parts),
+> stránka aktualizovaná 2024-05). V řešení kurzu je `isDomainIsolated: false` a všechna
+> oprávnění jsou tenantová.
 
 ### Fallback: degradovat, ne spadnout
 
@@ -71,6 +159,38 @@ tečky dostupnosti informační pruh *„Dostupnost se nezobrazuje: správce nes
 oprávnění."* Vzor platí obecně: **každá funkce závislá na volitelném oprávnění má vlastní
 cestu bez něj.**
 
+Podstatné je, **kde** je `try/catch`. Hledání lidí a presence mají každé vlastní blok:
+
+```typescript
+const found: IEmployee[] = await service.search(query);
+// ...
+try {
+  const map: PresenceMap = await service.getPresence(found.map(e => e.id));
+  // ...
+} catch {
+  // Degrade gracefully: the directory works, presence is just not shown.
+  if (!cancelled) {
+    setPresenceAvailable(false);
+  }
+}
+```
+
+Kdyby oba dotazy obaloval jeden `try/catch`, neschválená presence by shodila celý Adresář —
+přesně ten případ, se kterým dokumentace počítá: řešení jde nasadit a používat i se
+zamítnutou žádostí, takže kód nesmí předpokládat, že oprávnění existuje.
+
+Typické chyby a jak je poznat:
+
+- **Celý web part ukáže chybu**, i když chybí jen volitelné oprávnění → jeden společný
+  `try/catch` pro povinná i volitelná data.
+- **Fallback se neukáže nikdy** → oprávnění je v tenantu schválené (třeba z dřívějška nebo ho
+  schválil kolega). Ověřit na stránce API access, ne v kódu.
+- **Hláška „správce neschválil" se ukáže, i když schváleno je** → `403` neznamená vždy chybějící
+  schválení. Graph upozorňuje, že `403` může přijít i s udělenými oprávněními, když přihlášený
+  uživatel k prostředku nemá práva nebo admin nastavil vlastní politiky
+  ([Best practices — Handling expected errors](https://learn.microsoft.com/en-us/graph/best-practices-concept)).
+  Text pro uživatele proto formulovat opatrně a technický detail logovat.
+
 ## Klíčové rozlišení
 
 - **Žádost vs. schválení** — vývojář žádá v balíčku, admin schvaluje v admin centru. Nasazení
@@ -78,6 +198,10 @@ cestu bez něj.**
 - **Oprávnění řešení vs. oprávnění tenantu** — neexistuje „oprávnění mého web partu"; je jen
   oprávnění SPFx v tenantu.
 - **Odebrání řešení vs. odvolání oprávnění** — dvě různé akce na dvou různých místech.
+- **Delegated vs. application** — web part jedná za uživatele a nikdy nepřečte víc než on;
+  aplikační oprávnění jsou pro běh bez uživatele.
+- **Odvolání vs. okamžitý účinek** — vydané tokeny platí do vypršení.
+- **Chybějící schválení vs. chybějící práva uživatele** — obojí může vypadat jako `403`.
 
 ## Naše prostředí
 
@@ -102,6 +226,9 @@ oprávnění k API musí být vědomě schválené" je splněná doslova.
 - [Connect to Entra ID-secured APIs in SharePoint Framework solutions](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)
 - [Manage access to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sharepoint/api-access)
 - [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference)
+- [Overview of permissions and consent in the Microsoft identity platform](https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview)
+- [Best practices for working with Microsoft Graph](https://learn.microsoft.com/en-us/graph/best-practices-concept)
+- [Isolated web parts](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/isolated-web-parts)
 - [Microsoft Graph — get presence of multiple users](https://learn.microsoft.com/en-us/graph/api/cloudcommunications-getpresencesbyuserid?view=graph-rest-1.0)
 
 ## Stav produktu / delta

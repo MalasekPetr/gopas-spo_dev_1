@@ -171,6 +171,41 @@ Tři důsledky, které budou celý týden zpátky:
    (stejný Entra tenant) hranici neopouští — proto je to doporučené místo pro backend.
    API dodavatele nebo třetí strany ji opouští vždy.
 
+### Kdo komponentě věří
+
+Že SPFx kód běží „jako uživatel", ještě neříká, **kdo dovolil, aby vůbec běžel**. V SharePoint
+Online o tom rozhodují tři oddělená schválení:
+
+1. **Admin App Catalogu schvaluje řešení.** Při nahrání `.sppkg` SharePoint upozorní, že jde
+   o *full trust client-side solution*, a admin ho musí povolit
+   ([Hello World part 3](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/serve-your-web-part-in-a-sharepoint-page)).
+   Uživatelé pak smějí používat jen řešení schválená adminem tenantu nebo jeho delegátem
+   ([Overview of SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview)).
+   Schvaluje se **celý obsah bundlu**, včetně přibalených npm knihoven.
+2. **Custom script zůstává vypnutý.** Script Editor a podobné cesty spoléhají na *custom
+   script*, který SharePoint ve výchozím stavu na moderních webech nepovoluje — a kde ho
+   povolí, smí libovolný skript přidat každý s oprávněním *Add and Customize Pages*
+   ([Allow or prevent custom script](https://learn.microsoft.com/en-us/sharepoint/allow-or-prevent-custom-script)).
+   Vygenerovaný manifest web partu proto nese `"requiresCustomScript": false`.
+3. **Admin tenantu schvaluje oprávnění k API.** Schválení platí pro celý tenant, odebráním
+   řešení nezmizí a jeho zamítnutí nasazení nezastaví
+   ([Connect to Entra ID-secured APIs](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient),
+   sekce *Considerations*).
+
+Cesta JavaScriptu od `.sppkg` přes hosting v SharePointu až do prohlížeče, výňatek
+z manifestu `vltava-portal` a tabulka příznaků jsou v
+[`explainer-loading-and-trust.md`](explainer-loading-and-trust.md).
+
+### Typické chyby při volbě technologie
+
+| Chyba | Jak ji poznat | Proč je to chyba |
+|---|---|---|
+| SPFx na automatizaci „když se změní položka" | požadavek obsahuje *když*, *po*, *každou noc* | SPFx běží jen v prohlížeči jako uživatel, který má stránku otevřenou ([Overview](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview)) — bez otevřené stránky nic nespustí |
+| Tajemství (API klíč) v kódu web partu | v návrhu je „web part zavolá API dodavatele s klíčem" | klientský kód tajemství neuchová ([AadHttpClient](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)); bundle si stáhne každý uživatel |
+| Úprava stránky přes její HTML/CSS | návrh mluví o „najdeme element v hlavičce a přepíšeme ho" | DOM stránky není API a mění se bez ohlášení ([Overview](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview)) — správně je placeholder extension |
+| „Oprávnění dostane jen náš web part" | v návrhu je oprávnění k Graphu vázané na jednu komponentu | schválení platí pro celý tenant ([AadHttpClient](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)) |
+| SPFx tam, kde stačí JSON formátování | požadavek mění jen vzhled hodnoty, kterou seznam už má | kód na údržbu bez přidané hodnoty (viz tabulka *Kdy SPFx, a kdy ne*) |
+
 ## Klíčové rozlišení
 
 - **SPFx vs. SharePoint Add-in** — Add-in běžel mimo stránku (iframe, vlastní hosting nebo app
@@ -181,6 +216,12 @@ Tři důsledky, které budou celý týden zpátky:
 - **Komponenta vs. aplikace** — SPFx sám backend nemá. Jakmile řešení potřebuje server,
   přidá se vedle něj vlastní API (Azure Functions, App Service) a SPFx zůstává jeho UI
   v SharePointu. Je to běžná produkční architektura, ne důvod SPFx opustit.
+- **Schválení řešení vs. schválení oprávnění** — první dělá admin App Catalogu a pouští kód
+  na stránky; druhé dělá admin tenantu a pouští kód k datům v Graphu. Jedno bez druhého
+  znamená web part, který se zobrazí, ale data nenačte.
+- **SPFx vs. custom script (Script Editor)** — u SPFx kód schvaluje admin; u custom scriptu
+  ho může přidat každý vlastník stránky, a proto je na moderních webech ve výchozím stavu
+  zakázaný.
 
 ## Naše prostředí
 
@@ -206,6 +247,9 @@ překládá do konkrétních míst v kódu, která budeme hlídat celý týden.
 - [Column formatting](https://learn.microsoft.com/en-us/sharepoint/dev/declarative-customization/column-formatting)
 - [Declarative agents for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-declarative-agent)
 - [Overview of Copilot UX components](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/copilot/overview-copilot-apps)
+- [Allow or prevent custom script](https://learn.microsoft.com/en-us/sharepoint/allow-or-prevent-custom-script)
+- [Connect to Entra ID-secured APIs in SharePoint Framework solutions](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient)
+- [Deploy your client-side web part to a SharePoint page (Hello World part 3)](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/serve-your-web-part-in-a-sharepoint-page)
 
 ## Stav produktu / delta
 

@@ -34,6 +34,38 @@ Dvě omezení z dokumentace:
 Zdroje: [Use the developer dashboard](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-developer-dashboard),
 [Log class](https://learn.microsoft.com/en-us/javascript/api/sp-core-library/log?view=sp-typescript-latest).
 
+### Log: úrovně, zdroj a co se ořízne
+
+`Log` je podle reference „jednoduchý přesměrovatelný logovací systém" se čtyřmi úrovněmi;
+zdroj a úroveň pomáhají zprávy rozlišit a filtrovat. V SPFx aplikaci všechny čtyři skončí na
+záložce **Trace** ([Log class](https://learn.microsoft.com/en-us/javascript/api/sp-core-library/log?view=sp-typescript-latest)):
+
+| Metoda | Kdy ji použít | V `vltava-portal` |
+|---|---|---|
+| `Log.verbose(source, message, scope?)` | podrobnosti jen pro ladění | — |
+| `Log.info(source, message, scope?)` | běžná událost | doba volání API v `src/utils/perf.ts` |
+| `Log.warn(source, message, scope?)` | něco nečekaného, ale funkce běží dál | — |
+| `Log.error(source, error, scope?)` | chyba; druhý parametr je objekt `Error`, ne text | `componentDidCatch` v `ErrorBoundary` |
+
+Dvě ořezání z reference:
+
+- `source` delší než **20 znaků** se zkrátí na prvních 20,
+- `message` delší než **100 znaků** se zkrátí na prvních 100.
+
+Proto `perf.ts` zapisuje jen `název: N ms` a ne celou odpověď API. Volitelný `scope`
+(`ServiceScope`) přidá kontext komponenty — řešení ho nepředává, zdroj stačí k rozlišení
+web partů.
+
+Typické chyby:
+
+- **Zpráva bez konce.** Dlouhý text nebo JSON se ořízne na 100 znaků; podstatné patří na
+  začátek.
+- **Osobní data v logu.** Dnes se log zobrazí jen v dashboardu, ale jakmile se `Log` přesměruje
+  do telemetrie, odchází všechno, co se loguje. Jméno, e-mail ani obsah položky do zprávy
+  nepatří ani teď.
+- **Hledání logu po obnovení stránky.** Zprávy žijí jen do obnovení — zopakuj akci s otevřeným
+  dashboardem.
+
 > [!IMPORTANT] Produkční telemetrie = data mimo tenant
 > Application Insights nebo jakákoli jiná telemetrie posílá data z prohlížeče uživatele do
 > služby mimo SharePoint. Čí je to služba, kde fyzicky běží a co se do ní posílá (jména, URL
@@ -47,6 +79,59 @@ je vidět v prohlížeči (F12 → **Performance** → *Timings*) a doba se zap�
 do dashboardu. Měří se volání Graphu (`vltava-graph-users`) a načtení seznamu
 (`vltava-equipment-load`) — ne cache, ta do měřené funkce nedojde.
 
+Jak to v kódu teče — služba obalí jen samotný dotaz, ne mapování ani vykreslení:
+
+```typescript
+// src/services/equipmentService.ts
+return await measure('VltavaEquipment', 'vltava-equipment-load', () => query<IEquipmentItem[]>());
+```
+
+```typescript
+// src/utils/perf.ts (shortened)
+performance.mark(start);
+try {
+  return await action();
+} finally {
+  // runs on success AND on failure: a failed call is measured too
+  performance.mark(end);
+  performance.measure(name, start, end);
+  Log.info(source, `${name}: ${Math.round(duration)} ms`);
+}
+```
+
+```mermaid
+sequenceDiagram
+  participant H as useEquipment hook
+  participant S as equipmentService
+  participant P as perf.measure
+  participant SP as SharePoint REST
+  participant D as Developer Dashboard
+  H->>S: getAll()
+  S->>P: measure(source, name, query)
+  P->>SP: GET items
+  SP-->>P: JSON
+  P->>D: Log.info "name: N ms" (Trace)
+  P-->>S: items
+  S-->>H: items
+```
+
+Dvě různá měření, která se snadno pletou:
+
+| | Záložka **Performance** v Developer Dashboardu | `measure()` z `perf.ts` |
+|---|---|---|
+| Kdo měří | SPFx, pro každou komponentu na stránce | náš kód, jen kde ho zavoláme |
+| Co měří | čekání na server, načtení modulu, inicializaci, načtení dat, vykreslení | jedno konkrétní volání API |
+| Kde to vidím | dashboard → Performance | dashboard → Trace a F12 → Performance → *Timings* |
+
+Fáze životního cyklu komponenty podle
+[Use the developer dashboard](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-developer-dashboard).
+Záložka Performance odpoví „který web part zdržuje stránku", `measure()` odpoví „které volání
+uvnitř web partu".
+
+Jedno číslo není měření: doba volání API se mezi pokusy liší (síť, cache serveru, první volání
+po přihlášení). Do `HARDENING.md` nebo do obhajoby patří několik opakování, datum a kde se
+měřilo — viz [`../../CONVENTIONS.md`](../../CONVENTIONS.md#nic-netvrdit-bez-měření).
+
 ### Error boundary
 
 `src/components/ErrorBoundary.tsx` je třídní komponenta s `getDerivedStateFromError`
@@ -55,6 +140,34 @@ uživatel uvidí srozumitelnou hlášku místo prázdného místa a chyba jde do
 
 Error boundary **nechytá** chyby v obsluze událostí a v `Promise` — ty řeší služby a hooky
 (`useEquipment`, `useEmployees`), které mají vlastní chybové stavy.
+
+### Kam v řešení dopadne která chyba
+
+Princip: React bez error boundary při chybě **vykreslení** odstraní celé UI pod kořenem.
+Boundary zachytí chybu vzniklou při vykreslování svých **potomků** a ukáže náhradní obsah.
+React výslovně uvádí, co boundary **nechytá**
+([react.dev — Component](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)):
+
+- obsluhu událostí (`onClick`, `onChange`),
+- asynchronní kód (`setTimeout`, `requestAnimationFrame` — a stejně tak pokračování `Promise`),
+- vykreslování na serveru,
+- chybu v boundary samotné.
+
+Funkční komponentou boundary napsat nejde — proto je `ErrorBoundary.tsx` jediná třídní
+komponenta v řešení. `getDerivedStateFromError` má být čistá funkce (jen vrátí nový stav);
+vedlejší efekt jako `Log.error` patří do `componentDidCatch`.
+
+| Kde chyba vznikne | Příklad ve Výdejně | Kdo ji zachytí | Co uživatel uvidí |
+|---|---|---|---|
+| při vykreslení komponenty | výjimka v `render` (lab, krok 3: `boom`) | `ErrorBoundary` | hlášku `RenderError` místo web partu, ostatní web party běží |
+| v načítání dat | seznam `EquipmentLoans` chybí (404) | `useLoans` → `error` / `listMissing` | `MessageBar` s odkazem na seznam |
+| v obsluze kliknutí | **Vrátit** selže na síti | `onReturn` v `EquipmentDesk.tsx` → `actionError` | `MessageBar` nad záložkami |
+| v `onInit` web partu | `getClient('3')` selže | nikdo z našeho kódu | chování určuje SPFx — **neověřeno** |
+
+Jak chybu v návrhu poznat: obsluha události nebo `Promise` bez `catch`, která počítá s tím, že
+„to chytí boundary". Nechytí. V development buildu Reactu se navíc chyby zachycené
+`componentDidCatch` dostanou až do `window.onerror`, v produkčním ne (react.dev, tamtéž). Který
+build Reactu SPFx na stránce načítá při ladění a který v provozu, je pro kurz **neověřeno**.
 
 > [!IMPORTANT] Hláška přes Fluent `MessageBar` by Rozcestníku přidala 8 KB — změřeno (2026-10-16)
 > Rozcestník s error boundary: s `MessageBar` +8 346 B, s prostým `<div role="alert">` a CSS
@@ -76,6 +189,61 @@ součástí `.sppkg`**, takže se nedostanou k uživatelům
 ([npm audit vulnerabilities in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/npm-vulnerabilities)).
 `npm audit fix` v SPFx projektu se nespouští — aktualizuje balíčky mimo testovanou sadu.
 
+### Jak číst `npm audit` v SPFx projektu
+
+`npm audit` porovná **celý** strom závislostí — včetně tranzitivních — s databází známých
+zranitelností a u každého nálezu ukáže balíček, závažnost a cestu, kudy se do projektu dostal
+([npm audit vulnerabilities in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/npm-vulnerabilities)).
+Learn k tomu dodává fakt o architektuře: `node_modules` zůstává na vývojářském stroji a do
+`.sppkg` jdou jen zabalené bundly, manifest a assety.
+
+Z toho plyne rozdělení, které dělá `--omit=dev`:
+
+```mermaid
+flowchart LR
+  DEV[devDependencies<br/>heft, rig, eslint, jest] -->|build only| B[build on dev machine / CI]
+  PROD[dependencies<br/>e.g. fluentui, pnp] -->|webpack bundles used code| JS[release/assets/*.js]
+  JS --> PKG[.sppkg in App Catalog]
+  PKG --> U[user browser]
+```
+
+- Nález **jen ve vývojových** závislostech (referenční řešení: všech 54) ohrožuje stroj, na
+  kterém běží build — ne uživatele. Řeší ho nová verze SPFx, ne ruční zásah.
+- Nález v **produkčních** závislostech (`npm audit --omit=dev`) je jiná kategorie: kód
+  produkčních závislostí, který webpack zabalí (u `vltava-portal` např. Fluent UI a PnPjs),
+  běží v prohlížeči uživatele. Tohle číslo patří do zápisu pro
+  zákazníka — v referenčním řešení 0.
+
+Kdy podle Learn nález zkoumat: když projekt přidal balíčky **nad rámec** výchozích závislostí
+SPFx, když je zranitelný balíček přímá závislost pod kontrolou projektu, nebo když to vyžaduje
+bezpečnostní politika organizace. Opravu tranzitivních závislostí SPFx doručí až další verze
+SPFx — proto je odpověď na nález v toolchainu „počkat na release a zdokumentovat", ne `overrides`
+na vlastní pěst. (`overrides` v `package.json` generátoru dělá Microsoft — viz `spfx-whats-next`.)
+
+### Content Security Policy: co prohlížeč smí načíst
+
+CSP je hlavička, kterou SharePoint Online posílá prohlížeči: seznam míst, odkud stránka smí
+načítat skripty. Skript z jiného místa prohlížeč nenačte a chybu zapíše do konzole; SharePoint
+porušení zapisuje také do auditu v Microsoft Purview (aktivita *Violated Content Security
+Policy*) ([Support for CSP in SharePoint Online](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/content-securty-policy-trusted-script-sources)).
+
+| Jak řešení načítá skript | Dopad CSP podle Learn | `vltava-portal` |
+|---|---|---|
+| bundly uvnitř `.sppkg` (`includeClientSideAssets: true`, výchozí) | žádný — SharePoint je povolený zdroj | **ano** |
+| vlastní CDN (`cdnBasePath`) nebo `externals` | SharePoint přidá adresu do *Trusted script sources* při instalaci | ne |
+| `SPComponentLoader.loadScript` z cizí adresy | nutná ruční položka v *Trusted script sources* | ne |
+| inline skript (`<script>`, `onclick="..."`, `innerHTML` se `<script>`) | **zablokuje se**; řešení je přesunout kód do souboru | ne |
+
+Kontrola v kódu (stav 2026-10-23, `equipment-desk/solution`): `src/` neobsahuje
+`SPComponentLoader`, `dangerouslySetInnerHTML` ani `innerHTML` — banner výslovně používá
+`textContent`. Ověřit na stránce jde parametrem `?csp=enforce` v URL: stránka se chová, jako by
+CSP blokoval, a porušení jsou v konzoli.
+
+> [!WARNING] Ověřit k datu běhu — stav k 2026-10.
+> Stránka Learn (ms.date 2026-05-08) uvádí začátek vynucení CSP **1. března 2026** (odklad
+> nejdéle do 1. června 2026), na jiném místě ale „zatím se nic neblokuje". Skutečný stav na
+> kurzovním tenantu **neověřen** — zkontrolovat konzoli na stránce s Výdejnou.
+
 > [!IMPORTANT] Všechno v `.sppkg` si může přečíst každý uživatel
 > Bundle je JavaScript, který si stáhne prohlížeč. Klíč k API, heslo nebo connection string
 > v kódu SPFx řešení **není tajemství** — je to veřejný text. Tajemství patří na server
@@ -96,6 +264,10 @@ Webpack ale **nepřekládá závislosti** — PnPjs 4 přichází jako moderní 
 - **Chyba vykreslení vs. chyba volání** — první chytí error boundary, druhou hook/služba.
 - **Vývojová vs. produkční zranitelnost** — `npm audit --omit=dev` říká, co jde k uživateli.
 - **Konfigurace vs. tajemství** — URL a text oznámení smí být v balíčku, klíč nikdy.
+- **Performance v dashboardu vs. `measure()`** — první měří životní cyklus komponent, druhé
+  jedno konkrétní volání.
+- **Skript z `.sppkg` vs. skript odjinud** — první CSP propustí, druhý potřebuje povolený
+  zdroj, inline skript neprojde vůbec.
 
 ## Naše prostředí
 
@@ -117,6 +289,7 @@ Stav po dni 5: [`solution/vltava-portal/`](solution/vltava-portal/).
 - [Use the developer dashboard](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/use-developer-dashboard)
 - [Log class (sp-core-library)](https://learn.microsoft.com/en-us/javascript/api/sp-core-library/log?view=sp-typescript-latest)
 - [Understanding npm audit vulnerabilities in SPFx projects](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/npm-vulnerabilities)
+- [Support for Content Security Policy (CSP) in SharePoint Online](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/content-securty-policy-trusted-script-sources)
 
 ## Zdroje (třetí strana — React, npm)
 

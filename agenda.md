@@ -6,7 +6,7 @@ pořadí = úprava tohoto souboru, ne přejmenování složek.
 Denní briefingy: [`day-1`](./day-1/README.md) · [`day-2`](./day-2/README.md) ·
 [`day-3`](./day-3/README.md) · [`day-4`](./day-4/README.md) · [`day-5`](./day-5/README.md).
 
-**5 dní · 18 povinných bloků + 1 volitelný.** P = povinný, V = volitelný / samostudium.
+**5 dní · 18 povinných bloků + 2 volitelné.** P = povinný, V = volitelný / samostudium.
 
 > [!IMPORTANT] Osnova je restrukturalizovaná proti webu
 > Katalogová osnova má 15 bloků po 2–2,5 h a bonus (součet ~37 h). Tato agenda drží stav
@@ -36,8 +36,9 @@ Motiv: **z holého stroje k vlastnímu web partu na vlastním webu v jednom dni.
 | 2 | Vývojové prostředí od nuly | `dev-environment` | P | 105 |
 | 3 | Anatomie projektu | `project-anatomy` | P | 60 |
 | 4 | První web part — workbench a moderní stránka | `first-webpart` | P | 90 |
+| — | TypeScript pro SPFx — jazyk a konfigurace (samostudium) | `opt-typescript` | V | 60 |
 
-Celkem **300 min**.
+Celkem **300 min** povinných, + 60 volitelných (samostudium).
 
 > [!NOTE] Instalace je obsah, ne předehra
 > Učební stroje mají jen VS Code a PowerShell 7. Instalace Node.js, fnm, gitu a globálních
@@ -137,7 +138,7 @@ povinné — rychlí je dělají, ostatní je přeskočí.
 **Nekrátit** jádro `equipment-desk` — na jeho výsledku stojí capstone.
 
 > [!IMPORTANT] Volitelné moduly jsou vždy leaf
-> `opt-kendo-react` nesmí být předpokladem žádného povinného bloku ani capstonu. Kdo ho
+> `opt-kendo-react` ani `opt-typescript` nesmí být předpokladem žádného povinného bloku ani capstonu. Kdo je
 > neviděl, nesmí být znevýhodněn.
 
 ## Nosná linka — jedno řešení celý týden

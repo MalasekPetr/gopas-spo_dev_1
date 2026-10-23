@@ -59,7 +59,7 @@ Zdroje: [Heft-based toolchain](https://learn.microsoft.com/en-us/sharepoint/dev/
 
 | Místo v řešení | Co se změní |
 |---|---|
-| `render()` tří web partů (`ReactDom.render`, `unmountComponentAtNode`) | přechod na `createRoot` / `root.unmount()` |
+| `render()` a `onDispose()` čtyř web partů (Rozcestník, Adresář, Evidence, Výdejna — `ReactDom.render`, `unmountComponentAtNode`) | přechod na `createRoot` / `root.unmount()` |
 | `ErrorBoundary` | beze změny — třídní komponenta platí i v Reactu 18 |
 | funkční komponenty a hooks | beze změny; `getId` z Fluent UI může nahradit `useId` z Reactu 18 |
 | `opt-kendo-react` | lze přejít na aktuální KendoReact (14+ vyžaduje React 18) |
@@ -68,6 +68,137 @@ Zdroje: [Heft-based toolchain](https://learn.microsoft.com/en-us/sharepoint/dev/
 
 Postup analýzy: `m365 spfx project upgrade --toVersion <verze> --output md` (viz
 [`../../day-4/packaging-deployment/`](../../day-4/packaging-deployment/)).
+
+Stav podkladů k 2026-10-23: tabulka kompatibility na Learn (aktualizovaná 2026-10-19) už
+uvádí **SPFx 1.24 s Node.js v22, v24, v26, TypeScriptem v2.9–v5.8 a Reactem v18.3.1**
+([SPFx compatibility](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/compatibility)).
+Release notes 1.24 jsou ale stále *preview release notes* — rc.0 vyšel 2026-10-02, GA je
+cílené na říjen ([SPFx v1.24 preview release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.24.0)).
+Na npm je k témuž dni `latest` = 1.23.2 a `next` = 1.24.0-rc.0. Kurz proto zůstává na 1.23.2.
+
+### React 18: `createRoot` a automatické dávkování
+
+Upgrade na React 18 má dvě vrstvy. **Povinná** je výměna API kořene: `ReactDOM.render` je
+v Reactu 18 deprecated, vypíše varování a aplikace s ním běží „jako v Reactu 17"; náhradou je
+`createRoot(container)` a místo `unmountComponentAtNode(container)` se volá `root.unmount()`
+([React 18 upgrade guide](https://react.dev/blog/2022/03/08/react-18-upgrade-guide)).
+Bez `createRoot` nové funkce Reactu 18 nefungují
+([React v18.0](https://react.dev/blog/2022/03/29/react-v18)).
+
+Pro web part to znamená držet kořen v poli třídy: `render()` web partu neběží jen jednou
+(u Rozcestníku ho reaktivní property pane z dne 2 volá při každé změně vlastnosti) a kořen se
+má vytvořit jen jednou, pak se do něj jen znovu vykresluje. Náčrt pro
+`EquipmentDeskWebPart` — **návrh, neověřeno buildem na 1.24**; přesný tvar ukáže generátor GA:
+
+```typescript
+// SPFx 1.23.2 (today)
+ReactDom.render(element, this.domElement);
+// ...
+ReactDom.unmountComponentAtNode(this.domElement);
+
+// React 18 (sketch)
+import { createRoot, type Root } from 'react-dom/client';
+
+private _root: Root | undefined;
+
+public render(): void {
+  if (!this._root) {
+    this._root = createRoot(this.domElement);
+  }
+  this._root.render(element);
+}
+
+protected onDispose(): void {
+  this._root?.unmount();
+  this._root = undefined;
+}
+```
+
+**Druhá vrstva** je změna chování, kterou `createRoot` zapne: **automatické dávkování**.
+Do Reactu 17 se do jednoho překreslení slučovaly jen změny stavu uvnitř obsluhy událostí
+Reactu. Změny v `Promise`, `setTimeout` nebo nativních událostech se nedávkovaly — každý
+`setState` mohl znamenat vlastní překreslení. S `createRoot` se dávkují všechny, odkudkoli
+přijdou (react.dev, tamtéž).
+
+V řešení je na to přesný příklad — `useLoans` nastavuje pět stavů v `.then` po načtení dat:
+
+```typescript
+Promise.all([service.getOpen(), service.getHistory(), service.getAvailable()]).then(
+  ([openLoans, allLoans, availableItems]) => {
+    if (!cancelled) {
+      setOpen(openLoans);        // React 17: updates in a promise are not batched
+      setHistory(allLoans);      // React 18 + createRoot: one batched re-render
+      setAvailable(availableItems);
+      setListMissing(false);
+      setLoading(false);
+    }
+  });
+```
+
+V Reactu 17 se mohou mezi jednotlivými `set*` objevit mezistavy (např. nová data a ještě
+`loading`); kód je na to napsaný tak, aby nevadily. Kolik překreslení skutečně proběhne, jsme
+**neměřili** — pokud na tom něco stojí, změřit (React DevTools Profiler) před upgradem i po něm.
+Pro backlog: chování se může změnit u kódu, který spoléhá na to, že se stav propíše hned po
+`setState` mimo obsluhu události; pro odhlášení z dávkování v jednom místě uvádí upgrade guide
+Reactu `flushSync` — jako výjimku, ne pravidlo.
+
+### Node.js: proč kurz nepřepíná na 24 nebo 26
+
+Node.js má pevný cyklus: každá hlavní verze je šest měsíců *Current*; sudé verze (do Node.js 26
+včetně) pak přecházejí do *LTS*, které typicky dostává opravy kritických chyb celkem 30 měsíců.
+Produkční aplikace mají používat jen *Active LTS* nebo *Maintenance LTS*
+([Node.js releases](https://nodejs.org/en/about/previous-releases)). Stav na téže stránce
+k 2026-10-23:
+
+| Node.js | Stav | SPFx 1.23.2 | SPFx 1.24 (Learn) |
+|---|---|---|---|
+| 22 | LTS | ano | ano |
+| 24 | LTS | ne | ano |
+| 26 | **Current** (vydán 2026-05-05) | ne | ano |
+
+Co z toho plyne pro projekt:
+
+- Build potřebuje Node.js, který podporuje **verze SPFx v projektu** — `engines` v
+  `package.json` (`>=22.14.0 <23` v 1.23.2). Novější Node.js na stroji neznamená novější SPFx.
+- Node.js 26 podporovaný v 1.24 je k datu kurzu ve fázi *Current*, ne LTS — pro CI a sdílené
+  stroje zatím ne. Node.js 22 zůstává společný jmenovatel 1.23.2 i 1.24.
+- Přepnutí verze Node.js na stroji s více projekty řeší správce verzí (fnm, den 1), ne
+  přeinstalace.
+
+### Workflow upgradu: analýza, změna, důkaz
+
+`m365 spfx project upgrade` **nemění soubory projektu** — vypíše report s kroky. Každé zjištění
+má ID, soubor a místo, řešení (příkaz `npm` nebo úpravu JSON) a závažnost *Required* nebo
+*Recommended*. `--toVersion` bez hodnoty míří na nejnovější verzi, kterou CLI podporuje (na
+stránce příkazu k 2026-10-23: 1.23.2); `--preview` cílí na nejnovější preview
+([spfx project upgrade](https://pnp.github.io/cli-microsoft365/cmd/spfx/project/project-upgrade/)).
+Zda aktuální CLI umí analyzovat přechod na **1.24.0-rc.0**, je **neověřeno**.
+
+```mermaid
+flowchart LR
+  B[branch upgrade-1.24] --> R["m365 spfx project upgrade<br/>--output md"]
+  R --> A[apply Required findings<br/>then npm install]
+  A --> C[code changes<br/>createRoot, root.unmount]
+  C --> T[npm run build<br/>lint, tests]
+  T --> M[Measure-BundleSize.ps1<br/>compare with baseline]
+  M --> D[deploy to test site<br/>Developer Dashboard]
+  D --> P[merge, deploy to production]
+```
+
+Proč takhle:
+
+- **Report místo ručního zvedání verzí.** Balíčky SPFx jsou testované s konkrétními verzemi
+  závislostí a změna těchto verzí může rozbít build nebo běh
+  ([npm audit vulnerabilities in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/npm-vulnerabilities));
+  plošné zvednutí závislostí (ncu, `npm update`) přesně tohle dělá. Report říká, které balíčky,
+  na jakou verzi a co dalšího změnit.
+- **`npm install` po změně `package.json`** — upgrade mění lockfile; commituje se oba soubory
+  (viz `ci-cd-quality`), jinak `npm ci` v pipeline selže.
+- **Brány z týdne jsou důkaz.** Testy, lint, test lokalizace a brána velikosti z
+  [`../ci-cd-quality/`](../ci-cd-quality/) běží beze změny i po upgradu — co projde, je doložené,
+  ne odhadnuté.
+- **Měření před a po.** Baseline velikostí z `bundle-baseline` je srovnávací bod. React se do
+  bundlu nebalí, ale typy, Fluent UI a PnPjs se při upgradu mohou posunout — číslo rozhodne.
 
 ### AI asistovaný vývoj SPFx — v praxi, ne v kurzu
 
@@ -125,6 +256,12 @@ Zdroje: [SharePoint Framework Toolkit](https://github.com/pnp/vscode-viva),
 
 - **RC vs. GA vs. roadmapa** — RC jde vygenerovat a změřit; roadmapa je záměr.
 - **Změna toolchainu vs. změna runtime** — Node.js a Heft mění build; React 18 mění kód.
+- **`createRoot` vs. `ReactDOM.render` v Reactu 18** — první zapne nové chování (včetně
+  automatického dávkování), druhý funguje dál, ale s varováním a v režimu Reactu 17.
+- **Node.js LTS vs. Current** — podporovaná verze SPFx ještě neznamená verzi vhodnou pro
+  produkci; pro CI a sdílené stroje jen LTS.
+- **Report upgradu vs. upgrade** — `m365 spfx project upgrade` nic nemění; změnu dělá člověk
+  a dokládá ji build a měření.
 
 ## Naše prostředí
 
@@ -145,6 +282,19 @@ položku backlogu s odhadem.
 - [Overview of Copilot UX components](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/copilot/overview-copilot-apps)
 - [Heft-based toolchain](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/sharepoint-framework-toolchain-rushstack-heft)
 - [SPFx roadmap update — září 2026 (Microsoft 365 Developer Blog)](https://devblogs.microsoft.com/microsoft365dev/sharepoint-framework-spfx-roadmap-update-september-2026/)
+- [SharePoint Framework compatibility reference](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/compatibility) (aktualizováno 2026-10-19)
+- [SharePoint Framework v1.24 preview release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.24.0) (rc.0, 2026-10-02)
+
+## Zdroje (třetí strana — React, Node.js, CLI for Microsoft 365)
+
+> [!IMPORTANT] Proč odkaz mimo Learn
+> React dokumentuje React, LTS harmonogram Node.js dokumentuje nodejs.org, příkazy CLI for
+> Microsoft 365 dokumentuje PnP.
+
+- [React v18.0](https://react.dev/blog/2022/03/29/react-v18)
+- [How to upgrade to React 18](https://react.dev/blog/2022/03/08/react-18-upgrade-guide)
+- [Node.js — previous releases](https://nodejs.org/en/about/previous-releases)
+- [CLI for Microsoft 365 — spfx project upgrade](https://pnp.github.io/cli-microsoft365/cmd/spfx/project/project-upgrade/)
 
 ## Stav produktu / delta
 

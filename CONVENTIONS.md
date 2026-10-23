@@ -60,6 +60,7 @@ Pořadí modulů v běhu drží **`agenda.md`** — je to jediný zdroj pravdy o
   | `nodejs.org` | LTS harmonogram Node.js |
   | `github.com/Schniz/fnm` | instalace a příkazy fnm |
   | `react.dev`, `react.fluentui.dev`, `developer.microsoft.com/fluentui` | React a Fluent UI API |
+  | `typescriptlang.org` | jazyk TypeScript a reference `tsconfig` |
 
 - Po každém hromadném zásahu ověřit odkazy **skriptem, ne odhadem**
   (`./scripts/Test-RepoIntegrity.ps1`).

@@ -28,7 +28,42 @@ týdne v číslech.
 
 React 17 nemá `useId` (přišel v Reactu 18) — stabilní ID pro `aria-labelledby` proto dává
 `getId` z Fluent UI. Fluent UI v9 (`@fluentui/react-components`) dokumentace SPFx nezmiňuje;
-v kurzu ji nepoužíváme.
+v kurzu ji nepoužíváme — proč, a co jsme naměřili, je v sekci *Fluent UI 9 — proč počkat* níže.
+
+**React do bundlu nepatří.** Manifest z buildu uvádí `react` a `react-dom` 17.0.1 jako
+komponenty SPFx s pevným ID; načte je zavaděč SPFx ze SharePointu a sdílí je všechna řešení
+na stránce. Proto musí verze v `package.json` přesně odpovídat verzi SPFx — jinak řešení
+počítá s jiným Reactem, než jaký dostane. Fluent UI naopak v bundlu **je**.
+
+### React za 10 minut
+
+Podrobně v [`explainer-react.md`](explainer-react.md). Minimum pro tento blok:
+
+- **Komponenta** = funkce `props → JSX`. **Props** jsou vstupy (komponenta je nemění),
+  **state** je paměť komponenty (`useState`); změna state vyvolá nové vykreslení a React do DOM
+  zapíše jen rozdíl.
+- **Hooky** používané v kurzu: `useState` (paměť), `useEffect` (načítání dat, časovače —
+  s cleanupem), `useMemo` / `useCallback` (nepočítat a nevytvářet znovu), vlastní hooky
+  (`useFilteredLinks`, později `useEquipment`, `useEmployees`).
+- **Pravidla hooků:** jen na nejvyšší úrovni komponenty, nikdy v podmínce nebo cyklu.
+- **Třída vs. funkce:** třída web partu (`BaseClientSideWebPart`) je třída **SPFx**, ne
+  komponenta Reactu. Komponenty píšeme jako funkce; jediná třída mezi nimi je `ErrorBoundary`
+  (den 5), protože error boundary jako funkci napsat nejde
+  ([Component](https://react.dev/reference/react/Component)).
+- **Kdy se vykresluje:** web part volá `ReactDom.render(...)` při každé změně vlastnosti;
+  React komponentu nevytvoří znovu, jen ji vykreslí s novými props a zachová její state.
+
+### Fluent UI v praxi
+
+Podrobně, včetně zapojení komponenty krok za krokem (`Panel` s formulářem), v
+[`explainer-fluent-ui.md`](explainer-fluent-ui.md). Pravidla:
+
+1. Komponentu najdi v [katalogu v8](https://developer.microsoft.com/fluentui#/controls/web),
+   importuj **pojmenovaně** z `@fluentui/react`.
+2. Vstupy řiď ze state: `value` dovnitř, `onChange(event, newValue)` ven.
+3. Texty z `strings`, rozvržení přes `Stack`, vlastní vzhled přes CSS modul nebo prop `styles`.
+4. Motiv sekce přes `ThemeProvider` (níže), ikony přes `Icon` / `iconProps`.
+5. Po přidání komponenty změř bundle.
 
 > [!WARNING] Ověřit k datu běhu — stav k 2026-10.
 > SPFx 1.24 má podle roadmapy přinést **React 18** jako výchozí. Funkční komponenty s hooks
@@ -102,6 +137,24 @@ v JSX escapuje sám — `escape()` navíc z `R&D` udělá `R&amp;D` a React to v
 
 Neznamená to „Fluent UI nepoužívat". Znamená to vědět, kolik stojí — středeční baseline
 a čtvrteční optimalizace na tomto čísle stojí.
+
+### Fluent UI 9 — proč počkat
+
+> [!IMPORTANT] Samotná v9 je menší, smíšená v8 + v9 nejdražší — změřeno (2026-10-23)
+> Stejné UI (popisek, pole, tlačítko, motiv): v8 **213 195 B**, v9 **95 280 B**, v9 s převodem
+> motivu SPFx **104 201 B**, v8 a v9 v jednom web partu **307 135 B**.
+> Data a postup: [`mereni-fluent-v9.md`](mereni-fluent-v9.md).
+
+Velikost tedy proti v9 nemluví. Proti přechodu v SPFx 1.23 mluví:
+
+- **podpora** — Learn pro SPFx 1.18+ popisuje jen v8 a verzi z generátoru označuje za jediný
+  oficiálně podporovaný přístup ([Fluent UI in SPFx](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/fluent-ui-integration#fluent-ui-react-formerly-office-ui-fabric-react));
+- **motiv** — SPFx dává motiv sekce ve tvaru v8; pro v9 se musí převádět (`createV9Theme`);
+- **smíšený stav** — existující řešení s v8 + jedna komponenta z v9 = obě knihovny v bundlu
+  (+44 %); totéž přinesou PnP SPFx controls, které závisí na obou verzích;
+- **`FluentProvider` v každém web partu** — web party nemají společný kořen.
+
+Kdy v9 ano a podrobnosti: [`explainer-fluent-ui.md`](explainer-fluent-ui.md#proč-zatím-ne-fluent-ui-9).
 
 ## Klíčové rozlišení
 

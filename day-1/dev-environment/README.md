@@ -77,6 +77,104 @@ a workbench se otevře rovnou tam. Adresa tenantu tak není v kódu ani v gitu.
 Zdroj: [Set up your development environment](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-development-environment),
 sekce *Set the SPFX_SERVE_TENANT_DOMAIN environment variable*.
 
+### Jak fnm přepíná verzi: všechno je `PATH`
+
+Když napíšeš `node`, PowerShell nehledá „nainstalovaný Node.js", ale první spustitelný soubor
+toho jména ve složkách vyjmenovaných v proměnné `PATH`
+([about_Environment_Variables](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables),
+sekce *Path information*). Správce verzí nedělá nic jiného, než že tuhle proměnnou
+nastaví pro aktuální terminál:
+
+- `fnm env` vypíše sadu příkazů pro shell, které se mají vyhodnotit a připravit prostředí
+  pro fnm. Proto řádek v profilu končí `| Out-String | Invoke-Expression` — výstup se
+  hned spustí.
+- `--use-on-cd` přidá skript, který při změně adresáře přepne verzi Node.js; verzi čte
+  ze souborů `.node-version` nebo `.nvmrc`.
+- `fnm default 22` nastaví výchozí verzi, `fnm use 22` změní verzi Node.js. Lab volá obojí,
+  aby nový terminál i ten aktuální měly Node.js 22 (jak přesně se výchozí verze uplatní
+  v nově otevřeném terminálu, dokumentace příkazů nepopisuje — neověřeno).
+
+Zdroj syntaxe: [fnm — commands](https://github.com/Schniz/fnm/blob/master/docs/commands.md),
+[fnm README](https://github.com/Schniz/fnm).
+
+```mermaid
+flowchart LR
+  P[Profil PowerShellu<br/>fnm env --use-on-cd] -->|nastavi PATH| T[Terminal]
+  T -->|node| N22[Node.js 22<br/>+ jeho globalni balicky]
+  T -.->|po fnm use 20| N20[Node.js 20<br/>jine globalni balicky]
+```
+
+Kontrola, kterou verzi terminál opravdu používá, je jeden příkaz: `Get-Command node`
+ukáže cestu k souboru, který se spustí. Když cesta nevede do složky fnm, profil se nenačetl.
+
+> [!NOTE] `engines` v `package.json` přepnutí nezařídí
+> Vygenerovaný projekt deklaruje `"engines": { "node": ">=22.14.0 < 23.0.0" }`. fnm umí toto
+> pole číst jen s volbou `--resolve-engines` a jen tam, kde chybí `.node-version` / `.nvmrc`
+> ([fnm — commands](https://github.com/Schniz/fnm/blob/master/docs/commands.md)). V kurzu ji
+> nepoužíváme — verzi drží `fnm default 22`.
+
+### Proměnné prostředí se dědí při startu procesu
+
+Proč musí student po nastavení `SPFX_SERVE_TENANT_DOMAIN` zavřít **celé** VS Code? Protože
+každý proces dostane proměnné prostředí od svého rodiče ve chvíli, kdy startuje. Dokumentace
+PowerShellu popisuje tři úrovně ve Windows — *Machine*, *User* a *Process* — a úroveň
+*Process* se skládá z *Machine* a *User* a dědí od rodičovského procesu
+([about_Environment_Variables](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables)).
+
+```mermaid
+flowchart TB
+  U[User scope<br/>zapis SetEnvironmentVariable] -.->|jen pro nove procesy| E[Windows shell<br/>nabidka Start]
+  E --> V1[VS Code spusteny PRED zapisem]
+  E --> V2[VS Code spusteny PO zapisu]
+  V1 --> T1[Terminal ve VS Code<br/>promenna chybi]
+  V2 --> T2[Terminal ve VS Code<br/>promenna je]
+  T2 --> H[heft start<br/>dosadi tenantDomain]
+```
+
+Lab proto v kroku 8 dělá dvě věci najednou:
+
+```powershell
+[Environment]::SetEnvironmentVariable('SPFX_SERVE_TENANT_DOMAIN', $domain, 'User') # persists for new processes
+$env:SPFX_SERVE_TENANT_DOMAIN = $domain                                           # current session only
+```
+
+Zápis přes `$env:` platí jen v aktuální relaci; trvalou změnu na úrovni *User* zapisuje
+metoda třídy `System.Environment`
+([about_Environment_Variables](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables)).
+Druhý řádek tedy jen ušetří restart terminálu, ve kterém student zrovna pracuje.
+
+### Který profil PowerShellu se načte kde
+
+Řádek s `fnm env` musí běžet v **každém** terminálu, ve kterém spouštíš `node`. PowerShell 7
+má pro aktuálního uživatele dva profily a VS Code přidává vlastní
+([about_Profiles](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles)):
+
+| Profil | Soubor (Windows) | Načte se v |
+|---|---|---|
+| `$PROFILE.CurrentUserAllHosts` | `$HOME\Documents\PowerShell\Profile.ps1` | každém hostiteli PowerShellu 7 |
+| `$PROFILE` (= `CurrentUserCurrentHost`) v konzoli | `$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` | jen v konzolovém hostiteli |
+| `CurrentUserCurrentHost` ve VS Code | `$HOME\Documents\PowerShell\Microsoft.VSCode_profile.ps1` | jen v hostiteli PowerShellu ve VS Code |
+
+Dokumentace doporučuje věci společné všem hostitelům dávat do `CurrentUserAllHosts` (tamtéž,
+sekce *How to choose a profile*). Proto lab zapisuje tam — a proto „fnm funguje ve Windows
+Terminalu, ale ne ve VS Code" je skoro vždy zápis do `$PROFILE` místo
+`$PROFILE.CurrentUserAllHosts`.
+
+> [!NOTE] Profil v OneDrivu
+> Dokumentace nedoporučuje mít složku `Documents` přesměrovanou do OneDrivu nebo na síťový
+> disk — moduly a profil pak mohou selhávat (tamtéž). Na učebním stroji neověřeno, zda je
+> `Documents` přesměrovaný.
+
+### Typické chyby a jak je poznat
+
+| Příznak | Příčina | Ověření |
+|---|---|---|
+| `node` není rozpoznaný příkaz | profil se nenačetl nebo v něm chybí `fnm env` | `Get-Content $PROFILE.CurrentUserAllHosts` |
+| `node --version` vypíše jinou verzi než 22 | v `PATH` je dřív jiný Node.js (např. z `.msi`) | `Get-Command node` — cesta mimo fnm |
+| Po přepnutí verze chybí `yo` | globální balíčky patří ke konkrétní verzi Node.js | `node --version`, pak `npm ls --global --depth=0` |
+| Workbench se otevře s `{tenantDomain}` v adrese | proces nezdědil `SPFX_SERVE_TENANT_DOMAIN` | `$env:SPFX_SERVE_TENANT_DOMAIN` v tom terminálu, kde běží `npm start` |
+| Příkazy SPFx fungují v jednom terminálu, v jiném ne | dva různé hostitele a profil jen pro jeden | `$PROFILE.CurrentUserAllHosts` a `$PROFILE` vypsat v obou |
+
 ### Co se **neinstaluje**
 
 - **gulp-cli** — legacy toolchain SPFx 1.0–1.21.1. Projekt SPFx 1.23 ho nepoužívá.
@@ -89,6 +187,11 @@ sekce *Set the SPFX_SERVE_TENANT_DOMAIN environment variable*.
   Heft a rig ve verzích z `node_modules` projektu.
 - **Node.js LTS vs. Current** — SPFx podporuje jen LTS. Nejnovější Node.js není správná
   odpověď.
+- **`$env:X = ...` vs. `[Environment]::SetEnvironmentVariable(..., 'User')`** — první platí
+  jen v aktuální relaci, druhé trvale, ale jen pro procesy spuštěné **po** zápisu.
+- **`$PROFILE` vs. `$PROFILE.CurrentUserAllHosts`** — první je profil jednoho hostitele
+  (konzole, nebo VS Code), druhý se načte ve všech hostitelích PowerShellu 7.
+- **`fnm default` vs. `fnm use`** — nastavení výchozí verze vs. změna verze; lab volá obojí.
 
 ## Naše prostředí
 
@@ -112,6 +215,8 @@ seznam vybavení i site collection App Catalog.
 - [Set up your SharePoint Framework development environment](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-development-environment)
 - [SPFx compatibility](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/compatibility)
 - [Heft-based toolchain](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/sharepoint-framework-toolchain-rushstack-heft)
+- [about_Environment_Variables](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables)
+- [about_Profiles](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles)
 
 ## Zdroje (třetí strana — fnm)
 
@@ -119,6 +224,7 @@ seznam vybavení i site collection App Catalog.
 > Microsoft Learn správce verzí Node.js nepopisuje. Odkaz dokládá jen instalaci a příkazy fnm.
 
 - [fnm — Fast Node Manager](https://github.com/Schniz/fnm)
+- [fnm — commands](https://github.com/Schniz/fnm/blob/master/docs/commands.md)
 
 ## Stav produktu / delta
 

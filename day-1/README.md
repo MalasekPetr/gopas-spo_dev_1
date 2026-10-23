@@ -10,8 +10,9 @@ běžící na testovací stránce svého webu.
 | 2 | Vývojové prostředí od nuly | [`dev-environment`](dev-environment/) | P | 105 |
 | 3 | Anatomie projektu | [`project-anatomy`](project-anatomy/) | P | 60 |
 | 4 | První web part — workbench a moderní stránka | [`first-webpart`](first-webpart/) | P | 90 |
+| — | TypeScript pro SPFx — jazyk a konfigurace (samostudium) | [`opt-typescript`](opt-typescript/) | V | 60 |
 
-Celkem **300 min**.
+Celkem **300 min** povinných, + 60 volitelných (samostudium).
 
 > [!IMPORTANT] Ráno před prvním blokem
 > Lektor rozdá účty `jmeno.prijmeni@cloudedu.cz`, dočasná hesla a adresu SharePointu tenantu.
