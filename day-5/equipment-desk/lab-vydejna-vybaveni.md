@@ -1,6 +1,6 @@
 # Lab · Výdejna vybavení
 
-> Modul: `equipment-desk` · Odhad: 100 min jádro + bonusy · Režim: hands-on, **samostatně**, vlastní web
+> Modul: `equipment-desk` · Odhad: ~108 min jádro (součet kroků) + bonusy · Režim: hands-on, **samostatně**, vlastní web
 > Tenant: `cloudedu.cz` · Scénář: [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md)
 
 ## Cíl
@@ -9,11 +9,13 @@ Full-page aplikace **Výdejna vybavení** na webu `spodev-<ini>`, nasazená jako
 vydáš notebook kolegovi z adresáře, vrátíš ho, historie výpůjček sedí se stavem v seznamu
 `Equipment` — a sedí i tehdy, když vydáš přes příkaz **Vydat zařízení** ze dne 4.
 
-**Jak lab číst:** pracuješ sám, lektor nepředvádí. Každý krok končí **Checkpointem** —
-nesedí-li, nepokračuj a zavolej lektora. Hotové soubory:
-[`solution/vltava-portal/`](solution/vltava-portal/). Časy u kroků jsou orientační; kdo je
-v 13:30 před krokem 11, převezme `src/` ze solution (postup ve
-[scénáři](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)).
+**Jak lab číst:** pracuješ sám, lektor nepředvádí. Začni u **Startovní čáry** — ověř, že
+tvůj kód je tam, kde lab začíná. Pak jdi po částech; každý krok říká, **který soubor**
+měníš, **co** do něj patří a **proč**, a končí **Checkpointem** — nesedí-li, nepokračuj a
+zavolej lektora. Na konci je **Výstupní stav**: cílový kód, se kterým se můžeš porovnat.
+Časy u kroků jsou orientační; kdo je v 13:30 před krokem 11, převezme Výstupní stav ze
+solution (postup ve [scénáři](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution))
+a dokončí jen krok 12.
 
 ## Předpoklady
 
@@ -21,7 +23,22 @@ v 13:30 před krokem 11, převezme `src/` ze solution (postup ve
 - Seznam `Equipment` na webu (den 3), schválené `User.Read.All` (den 3).
 - Client ID aplikace PnP pro `cloudedu.cz` od lektora.
 
-## Kroky
+## Startovní čára
+
+Lab začíná u stavu po modulu [`diagnostics-hardening`](../diagnostics-hardening/): referenční
+kód [`../diagnostics-hardening/solution/vltava-portal/`](../diagnostics-hardening/solution/vltava-portal/).
+
+- Pokračuješ ve **vlastním** projektu `vltava-portal-<ini>` — ověř checkpoint níže.
+- Nemáš ho, nebo je rozbitý: převezmi startovní kód podle
+  [scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)
+  (`robocopy`, `npm install`, **`Set-StudentIdentity.ps1`**). Vlastní `HARDENING.md`
+  a `.student-identity` zůstanou — `robocopy /E` nic nemaže.
+
+**Checkpoint:** `npm run build` projde (`Successes: 15`), v `src/components/` je
+`ErrorBoundary.tsx`, v `src/webparts/` jsou tři složky (`portal`, `employeeDirectory`,
+`equipment`) a `config/package-solution.json` má verzi řešení `1.1.0.0`.
+
+## Část A — Seznam výpůjček (10 min)
 
 ### 1. Zřiď seznam výpůjček skriptem (5 min)
 
@@ -54,6 +71,8 @@ Pak totéž **bez** `&$expand=Equipment`.
 s `Title`. Bez `expand` vrátí SharePoint chybu — `Equipment/Title` nejde vybrat bez rozbalení.
 Odtud pravidlo labu: **čte se objekt, zapisuje se číslo** (`EquipmentId`).
 
+## Část B — Nový web part a jeho identita (8 min)
+
 ### 3. Přidej web part (5 min)
 
 V kořeni projektu:
@@ -63,28 +82,57 @@ yo @microsoft/sharepoint --component-type webpart --component-name EquipmentDesk
     --framework react --skip-install --no-insight
 ```
 
-V `src/webparts/equipmentDesk/EquipmentDeskWebPart.manifest.json` **nech své `id`** a změň:
+Soubor `src/webparts/equipmentDesk/EquipmentDeskWebPart.manifest.json` — **změna**
+(vygenerovaný soubor). `id` neměň — přepíše ho skript v kroku 4. Řádek `supportedHosts`
+nahraď:
 
 ```json
-"supportedHosts": ["SharePointWebPart", "SharePointFullPage", "TeamsTab"],
+  // SharePointFullPage: the web part can be the only content of a page (single part app page).
+  "supportedHosts": ["SharePointWebPart", "SharePointFullPage", "TeamsTab"],
 ```
+
+V `preconfiguredEntries` nastav:
 
 ```json
-"title": { "default": "Vltava Equipment Desk (<ini>)", "cs-CZ": "Vydejna vybaveni Vltava (<ini>)" },
-"description": { "default": "Issue and return equipment, loan history" },
-"officeFabricIconFontName": "Handwriting",
-"properties": {}
+    "title": { "default": "Vltava Equipment Desk" },
+    "description": { "default": "Issue and return equipment, loan history" },
+    "officeFabricIconFontName": "Handwriting",
+    "properties": {}
 ```
 
-(v souboru s diakritikou: *Výdejna vybavení*). `SharePointFullPage` je to, co z web partu
-udělá aplikaci na celou stránku.
+a do `title` i `description` doplň český překlad `"cs-CZ"` — oba řetězce s diakritikou
+zkopíruj ze [solution manifestu](solution/vltava-portal/src/webparts/equipmentDesk/EquipmentDeskWebPart.manifest.json).
+`(<ini>)` do titulku **nepiš** — doplní ho skript v kroku 4. `SharePointFullPage` je to, co
+z web partu udělá aplikaci na celou stránku.
 
 **Checkpoint:** `config/config.json` má bundle `equipment-desk-web-part` a v
 `localizedResources` klíč `EquipmentDeskWebPartStrings`.
 
-### 4. Model výpůjčky (3 min)
+### 4. Dej novému web partu svou identitu (3 min)
 
-`src/models/ILoan.ts`:
+`yo` vygeneroval **náhodné** ID komponenty a titulek bez iniciál. Dokud to tak je, web part
+se s ostatními v tenantovém App Catalogu nesnese (viz
+[scénář](../../scenario-vltava-portal.md#identita-řešení-na-sdíleném-tenantu)). Spusť skript
+znovu — co už identitu má, nechá být, a nový web part doplní:
+
+```powershell
+& "$HOME\gopas-spo_dev_1\scripts\Set-StudentIdentity.ps1" -Initials <ini> -ProjectPath .
+```
+
+**Checkpoint:** v tabulce `Slot` je řádek `component/EquipmentDeskWebPart` a výpis
+`Changed … item(s)` obsahuje `EquipmentDeskWebPart.manifest.json (title suffix)`. Titulek
+v manifestu končí mezerou a `(<ini>)` v obou jazycích.
+
+**Checkpoint (negativní):** u ostatních slotů (`solution`, `component/PortalWebPart`, …) se
+sloupce `Old` a `New` **shodují** — skript nezměnil nic, co už identitu mělo.
+
+## Část C — Datová vrstva (28 min)
+
+### 5. Model a služba výpůjček (18 min)
+
+Model popisuje jeden řádek `EquipmentLoans` — přesně tak, jak ho vrací REST z kroku 2.
+
+Soubor `src/models/ILoan.ts` — **nový**:
 
 ```typescript
 /**
@@ -102,18 +150,24 @@ export interface ILoan {
 }
 ```
 
-Do `src/models/index.ts` přidej řádek:
+Soubor `src/models/index.ts` — **změna**: najdi
+
+```typescript
+export { EQUIPMENT_CATEGORIES, EQUIPMENT_STATUSES } from './IEquipmentItem';
+```
+
+a přidej za něj:
 
 ```typescript
 export type { ILoan } from './ILoan';
 ```
 
-**Checkpoint:** `Borrower` je lookup taky (na uživatele webu) — stejný vzor jako `AssignedTo`
-ze dne 3. Umíš říct, jak se bude jmenovat zapisované pole? (`BorrowerId`)
+`Borrower` je lookup taky (na uživatele webu) — stejný vzor jako `AssignedTo` ze dne 3.
+Zapisované pole se proto bude jmenovat `BorrowerId`.
 
-### 5. Služba výpůjček (15 min)
+Služba čte oba seznamy a zapisuje výdej a vrácení.
 
-`src/services/loanService.ts` — čte oba seznamy a zapisuje výdej a vrácení:
+Soubor `src/services/loanService.ts` — **nový**:
 
 ```typescript
 import type { SPFI } from '@pnp/sp';
@@ -238,7 +292,13 @@ export function createLoanService(sp: SPFI, webServerRelativeUrl: string): ILoan
 }
 ```
 
-Do `src/services/index.ts` přidej:
+Soubor `src/services/index.ts` — **změna**: najdi
+
+```typescript
+export { initSP } from './pnp';
+```
+
+a přidej za něj:
 
 ```typescript
 export { createLoanService, LOANS_LIST_URL, NotAvailableError } from './loanService';
@@ -257,7 +317,9 @@ export type { ILoanService } from './loanService';
 
 ### 6. Hook (10 min)
 
-`src/hooks/useLoans.ts` — stejný vzor jako `useEquipment` (den 3), jen čte tři věci najednou:
+Stejný vzor jako `useEquipment` (den 3), jen čte tři věci najednou.
+
+Soubor `src/hooks/useLoans.ts` — **nový**:
 
 ```typescript
 import * as React from 'react';
@@ -334,7 +396,13 @@ export function useLoans(service: ILoanService): IUseLoansResult {
 }
 ```
 
-Do `src/hooks/index.ts` přidej:
+Soubor `src/hooks/index.ts` — **změna**: najdi
+
+```typescript
+export type { IUseEquipmentResult } from './useEquipment';
+```
+
+a přidej za něj:
 
 ```typescript
 export { useLoans } from './useLoans';
@@ -343,10 +411,15 @@ export type { IUseLoansResult } from './useLoans';
 
 **Checkpoint:** umíš říct, proč je `setVersion` ve `finally`, ne až po úspěchu.
 
+## Část D — Uživatelské rozhraní (35 min)
+
 ### 7. Formulář výdeje v panelu (15 min)
 
-Vygenerované soubory v `src/webparts/equipmentDesk/components/` nahraď. Nejdřív
-`IEquipmentDeskProps.ts` — komponenta dostane **dvě služby**, ne kontext SPFx:
+Vygenerované soubory v `src/webparts/equipmentDesk/components/` přepisuješ. Komponenta
+dostane **dvě služby**, ne kontext SPFx.
+
+Soubor `src/webparts/equipmentDesk/components/IEquipmentDeskProps.ts` — **nový obsah**
+(vygenerovaný soubor přepiš celý):
 
 ```typescript
 import type { IReadonlyTheme } from '@microsoft/sp-component-base';
@@ -361,8 +434,10 @@ export interface IEquipmentDeskProps {
 }
 ```
 
-Pak nový soubor `IssuePanel.tsx`. Osobu hledá přes `useEmployees` — **stejný hook jako
-Adresář zaměstnanců** ze dne 3, včetně debounce a cache hledání:
+Panel hledá osobu přes `useEmployees` — **stejný hook jako Adresář zaměstnanců** ze dne 3,
+včetně debounce a cache hledání.
+
+Soubor `src/webparts/equipmentDesk/components/IssuePanel.tsx` — **nový**:
 
 ```typescript
 import * as React from 'react';
@@ -496,11 +571,48 @@ doplníš v kroku 8.
 
 ### 8. Aplikace s Pivot záložkami (15 min)
 
-Lokalizaci nepiš ručně — ze [solution](solution/vltava-portal/src/webparts/equipmentDesk/)
-zkopíruj `loc/mystrings.d.ts`, `loc/en-us.js`, `loc/cs-cz.js` a
-`components/EquipmentDesk.module.scss` (stavové štítky *Vydáno* / *Vráceno*).
+Lokalizaci nepiš ručně — ze [solution](solution/vltava-portal/src/webparts/equipmentDesk/loc/)
+zkopíruj celé soubory `loc/mystrings.d.ts`, `loc/en-us.js` a `loc/cs-cz.js` přes vygenerované
+(31 klíčů včetně `RenderError` z `diagnostics-hardening`).
 
-`components/EquipmentDesk.tsx`:
+Soubor `src/webparts/equipmentDesk/components/EquipmentDesk.module.scss` — **nový obsah**
+(vygenerovaný soubor přepiš celý; stavové štítky *Vydáno* / *Vráceno*):
+
+```scss
+.desk {
+  overflow: hidden;
+  padding: 1em;
+}
+
+.title {
+  margin-top: 0;
+}
+
+.message {
+  margin: 8px 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.open {
+  background: #deecf9;
+  color: #004578;
+}
+
+.returned {
+  background: #dff6dd;
+  color: #107c10;
+}
+```
+
+Soubor `src/webparts/equipmentDesk/components/EquipmentDesk.tsx` — **nový obsah**
+(vygenerovaný soubor přepiš celý):
 
 ```typescript
 import * as React from 'react';
@@ -685,8 +797,11 @@ export default function EquipmentDesk(props: IEquipmentDeskProps): JSX.Element {
 
 ### 9. Třída web partu (5 min)
 
-`EquipmentDeskWebPart.ts` — vzor `EmployeeDirectoryWebPart` (Graph) + `EquipmentWebPart`
-(PnPjs) v jednom:
+Vzor `EmployeeDirectoryWebPart` (Graph) + `EquipmentWebPart` (PnPjs) v jednom, obalený
+`ErrorBoundary` z `diagnostics-hardening`.
+
+Soubor `src/webparts/equipmentDesk/EquipmentDeskWebPart.ts` — **nový obsah** (vygenerovaný
+soubor přepiš celý):
 
 ```typescript
 import * as React from 'react';
@@ -770,11 +885,17 @@ export default class EquipmentDeskWebPart extends BaseClientSideWebPart<IEquipme
 }
 ```
 
-Smaž vygenerované soubory, které už nic nepoužívá (např. `components/I*Props.ts` se
-starým jménem, `assets/`, pokud na ně nic neodkazuje).
+Smaž vygenerovanou složku `src/webparts/equipmentDesk/assets/` (uvítací obrázky šablony) —
+nová třída na ni neodkazuje:
+
+```powershell
+Remove-Item .\src\webparts\equipmentDesk\assets -Recurse
+```
 
 **Checkpoint:** `npm run build` projde — lint bez varování a **všechny** testy zelené, včetně
-testu parity překladů pro nový `loc/`.
+testu parity překladů pro nový `loc/` (`Successes: 17`).
+
+## Část E — Výdej, vrácení a příkaz ze dne 4 (15 min)
 
 ### 10. Vyzkoušej výdej a vrácení (10 min)
 
@@ -796,17 +917,41 @@ panel výdeje pro **stejný** kus; v první vydej. Ve druhé dej **Vydat** — m
 
 ### 11. Ať historie sedí i z příkazu „Vydat zařízení" (5 min)
 
-Command Set ze dne 4 mění `Equipment`, ale výpůjčku nezapíše — historie by lhala. V
-`src/extensions/issueEquipment/IssueEquipmentCommandSet.ts` vyměň službu:
+Command Set ze dne 4 mění `Equipment`, ale výpůjčku nezapíše — historie by lhala. Vyměň mu
+službu za `loanService`.
+
+Soubor `src/extensions/issueEquipment/IssueEquipmentCommandSet.ts` — **změna**: najdi
+
+```typescript
+import { createEquipmentService, EQUIPMENT_LIST_URL, type IEquipmentService } from '../../services/equipmentService';
+```
+
+a nahraď:
 
 ```typescript
 import { EQUIPMENT_LIST_URL } from '../../services/equipmentService';
 import { createLoanService, type ILoanService } from '../../services/loanService';
 ```
 
+Soubor `src/extensions/issueEquipment/IssueEquipmentCommandSet.ts` — **změna**: najdi
+
+```typescript
+  private _service: IEquipmentService | undefined;
+```
+
+a nahraď:
+
 ```typescript
   private _service: ILoanService | undefined;
 ```
+
+Soubor `src/extensions/issueEquipment/IssueEquipmentCommandSet.ts` — **změna**: najdi
+
+```typescript
+    this._service = createEquipmentService(initSP(this.context), this.context.pageContext.web.serverRelativeUrl);
+```
+
+a nahraď:
 
 ```typescript
     // Issue through the loan service: the same write as the Equipment desk, so history stays complete.
@@ -819,6 +964,8 @@ Tohle je výhoda služby místo kódu v komponentě: druhé místo, které vydá
 **Checkpoint:** `npm run build` projde. Velikost `issue-equipment-command-set` vzroste
 (o `loanService`) — o kolik, ukáže krok 12.
 
+## Část F — Verze 1.2.0.0 a nasazení (15 min)
+
 ### 12. Změř, zvyš verzi a nasaď (15 min)
 
 ```powershell
@@ -826,9 +973,34 @@ npm run build
 & "$HOME\gopas-spo_dev_1\scripts\Measure-BundleSize.ps1" -ProjectPath . -MaxBytes 500000
 ```
 
-Pak v `package.json` verze **1.2.0** a v `config/package-solution.json` verze **řešení**
-`1.2.0.0`. **Verzi feature nech `1.1.0.0`** — nová verze nepřidává žádné elementy; vyšší
-verze feature by znovu spustila upgrade action ze dne 4.
+Soubor `package.json` — **změna**: najdi
+
+```json
+  "version": "1.1.0",
+```
+
+a nahraď:
+
+```json
+  "version": "1.2.0",
+```
+
+Soubor `config/package-solution.json` — **změna**: najdi (verze **řešení**, ne feature)
+
+```json
+    "version": "1.1.0.0",
+    "includeClientSideAssets": true,
+```
+
+a nahraď:
+
+```json
+    "version": "1.2.0.0",
+    "includeClientSideAssets": true,
+```
+
+**Verzi feature nech `1.1.0.0`** — nová verze nepřidává žádné elementy; vyšší verze feature
+by znovu spustila upgrade action ze dne 4.
 
 Nasazení a aktualizace aplikace na webu: kroky 4, 5 a 7 z
 [`lab-verze-a-upgrade.md`](../../day-4/packaging-deployment/lab-verze-a-upgrade.md)
@@ -843,6 +1015,8 @@ Nakonec aplikace na celou stránku: web `spodev-<ini>` → **New** → **Page** 
 do `EquipmentLoans`.
 
 ## Bonusy — pro rychlé, v libovolném pořadí
+
+Bonusy nejsou ve Výstupním stavu — `solution/` končí krokem 12.
 
 ### B1. Teams tab
 
@@ -869,26 +1043,55 @@ v kódu: záložka *Nesoulad* nad daty, která už hook načetl.
 
 **Checkpoint:** návrh má podmínku, kdy nesoulad vzniká, a kdo ho smí opravit.
 
+## Výstupní stav
+
+Cílový kód: [`solution/vltava-portal/`](solution/vltava-portal/) — finální stav kurzu,
+verze 1.2.0.0. Proti Startovní čáře se změnilo:
+
+| Soubor | Změna | Proč |
+|---|---|---|
+| `src/webparts/equipmentDesk/EquipmentDeskWebPart.manifest.json` | nový (`yo`) | full-page a Teams host, titulek s iniciálami ze skriptu |
+| `config/config.json` | změněný (`yo`) | bundle `equipment-desk-web-part` a `EquipmentDeskWebPartStrings` |
+| `src/models/ILoan.ts`, `src/models/index.ts` | nový / změněný | model řádku `EquipmentLoans` |
+| `src/services/loanService.ts`, `src/services/index.ts` | nový / změněný | čtení a zápis výdeje a vrácení přes `$batch` |
+| `src/hooks/useLoans.ts`, `src/hooks/index.ts` | nový / změněný | tři čtení paralelně, reload po každém zápisu |
+| `src/webparts/equipmentDesk/components/IEquipmentDeskProps.ts` | nový | dvě služby místo kontextu SPFx |
+| `src/webparts/equipmentDesk/components/IssuePanel.tsx` | nový | formulář výdeje v `Panel` |
+| `src/webparts/equipmentDesk/components/EquipmentDesk.tsx`, `.module.scss` | nový | `Pivot` se záložkami Vydáno / Skladem / Historie |
+| `src/webparts/equipmentDesk/EquipmentDeskWebPart.ts` | nový | Graph + PnPjs, `ErrorBoundary` |
+| `src/webparts/equipmentDesk/loc/*` | nový (kopie ze solution) | 31 klíčů, cs-CZ a en-US |
+| `src/extensions/issueEquipment/IssueEquipmentCommandSet.ts` | změněný | příkaz vydává přes `loanService`, historie je úplná |
+| `package.json`, `config/package-solution.json` | změněný | verze 1.2.0 / řešení 1.2.0.0, feature zůstává 1.1.0.0 |
+
+Tento stav je vstupem bloků [`spfx-whats-next`](../spfx-whats-next/) a
+[`capstone`](../capstone/). Kdo Výdejnu nedokončil, převezme ho podle
+[scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution) a nasadí
+krokem 12.
+
 ## Ověření
 
 - [ ] Seznam `EquipmentLoans` vznikl skriptem; opakované spuštění nic nezdvojí.
+- [ ] Nový web part má po `Set-StudentIdentity.ps1` vlastní ID a titulek s iniciálami.
 - [ ] Výdej a vrácení z Výdejny mění **oba** seznamy; historie má štítky *Vydáno* / *Vráceno*.
 - [ ] Příkaz **Vydat zařízení** zapisuje výpůjčku taky.
 - [ ] Verze řešení 1.2.0.0 z App Catalogu, stránka *Vydejna* jako aplikace na celou stránku.
 - [ ] Brána velikosti prošla, číslo máš zapsané pro capstone.
 - [ ] **Negativní:** druhý výdej téhož kusu skončil hláškou a nepřidal výpůjčku.
+- [ ] **Negativní:** skript identity v kroku 4 nezměnil ID, která už projekt měl.
 
 ## Fallback
 
 - **Skript končí „List Lists/Equipment not found":** nejdřív `New-EquipmentList.ps1` (den 3).
 - **Lookup sloupec chybí nebo ukazuje jinam:** smaž seznam `EquipmentLoans` a spusť skript
   znovu — lookup se po vytvoření na jiný seznam přesměrovat nedá.
+- **`Set-StudentIdentity.ps1` odmítne běžet („Project already belongs to …"):** spouštíš ho
+  s jinými iniciálami, než jaké projekt má v `.student-identity` — použij ty původní.
 - **V panelu nejsou lidé:** Graph `/users` potřebuje schválené `User.Read.All` (den 3); ve
   `found.error` je důvod.
 - **V nabídce šablon stránky chybí Apps:** stránku vytvoř normálně s web partem a přepni ji
   PnP PowerShellem (`Connect-PnPOnline ... -ClientId <client-id-od-lektora>`, pak
   `Set-PnPPage -Identity Vydejna -LayoutType SingleWebPartAppPage`).
-- **Při časové tísni:** převezmi `src/` ze [solution](solution/vltava-portal/) podle
+- **Při časové tísni:** převezmi Výstupní stav ze [solution](solution/vltava-portal/) podle
   [scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution) (a hned `Set-StudentIdentity.ps1`!)
   a dokonči jen krok 12.
 

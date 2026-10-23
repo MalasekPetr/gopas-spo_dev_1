@@ -5,6 +5,8 @@
 - ~25 min výklad + 60 min lab + 5 min shrnutí.
 - Krok 1 (instalace PnP.PowerShell + skript) může trvat 10 min a víc — pustit ho **během
   výkladu**. Kdo nemá Client ID nebo modul, jde ručním fallbackem.
+- Kroky 5–12 jsou přepis kódu podle labu; v kroku 13 se kopíruje **jen** `preconfiguredEntries`.
+  Kroky 4 a 13 = `Set-StudentIdentity.ps1` — bez nich má Evidence náhodné ID a titulek bez iniciál.
 
 ## Go/no-go — otestovat před během
 

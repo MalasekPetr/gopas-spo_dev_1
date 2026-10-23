@@ -221,6 +221,8 @@ Viz [`lab-pipeline.md`](lab-pipeline.md).
 Řešení má **automatické brány**: unit testy logiky odkazů, test parity překladů a limit
 velikosti balíčku. Ruční kontroly z dnů 1–4 se staly kódem.
 
+Stav po bloku: [`solution/vltava-portal/`](solution/vltava-portal/).
+
 ## Zdroje (Microsoft)
 
 - [Heft-based toolchain](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/toolchain/sharepoint-framework-toolchain-rushstack-heft)

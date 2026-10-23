@@ -8,8 +8,10 @@
 Učební stroj s Node.js 22, generátorem SPFx 1.23.2 a Heftem, vlastní web
 `/sites/spodev-<iniciály>` a výstup kontrolního skriptu `Environment ready`.
 
-**Jak lab číst:** každý krok končí **Checkpointem** — nesedí-li, nepokračuj. Všechny příkazy
-jsou pro **PowerShell 7** (`pwsh`), ne pro Windows PowerShell 5.1.
+**Jak lab číst:** instalační lab bez kódu. **Startovní čára** říká, s čím začínáš, každý
+krok končí **Checkpointem** — nesedí-li, nepokračuj — a **Výstupní stav** shrnuje, co je po
+labu nainstalované a založené. Všechny příkazy jsou pro **PowerShell 7** (`pwsh`), ne pro
+Windows PowerShell 5.1.
 
 ## Předpoklady
 
@@ -19,7 +21,16 @@ jsou pro **PowerShell 7** (`pwsh`), ne pro Windows PowerShell 5.1.
 - Iniciály, které budeš celý týden používat — malými písmeny, bez diakritiky, např. `pm`.
   Kde lab píše `<ini>`, dosaď je.
 
-## Kroky
+## Startovní čára
+
+Učební stroj tak, jak ho připravila učebna: **VS Code a PowerShell 7**, nic dalšího.
+Rozhodnutí z [`platform-positioning`](../platform-positioning/) se tu nepoužívají — lab
+začíná od nuly.
+
+**Checkpoint:** `$PSVersionTable.PSVersion` vypíše `7.` a `code --version` vypíše verzi.
+`node --version` může skončit chybou — Node.js přijde v kroku 5.
+
+## Část A — účet a vlastní web
 
 ### 1. Založ oddělený profil prohlížeče a přihlas se
 
@@ -40,6 +51,8 @@ Tvůj běžný profil Edge (pokud nějaký máš) zůstal nepřihlášený ke ku
 
 **Checkpoint:** `https://<tenant>.sharepoint.com/sites/spodev-<ini>` se otevře a v pravém
 horním rohu je volba **Edit** — jsi vlastník.
+
+## Část B — Node.js a nástroje SPFx
 
 ### 3. Nainstaluj fnm
 
@@ -106,6 +119,8 @@ se k tenantu teď **nemusíš**.
 
 **Checkpoint:** výpis `npm ls` obsahuje `yo@…`, `@microsoft/generator-sharepoint@1.23.2`,
 `@rushstack/heft@…` a `@pnp/cli-microsoft365@…`. **Neobsahuje** `gulp` ani `gulp-cli`.
+
+## Část C — nastavení a kontrola
 
 ### 8. Nastav adresu workbenche
 
@@ -176,6 +191,24 @@ z GitHubu (*Settings → Emails*), ne pracovní ani kurzovní e-mail. Na učebn�
 po kurzu smaž: `git config --global --unset user.name` a `--unset user.email`.
 
 **Checkpoint:** `git config --global user.email` vypíše noreply adresu — nebo krok přeskočíš.
+
+## Výstupní stav
+
+Kód nevzniká, `solution/` modul nemá. Po labu máš:
+
+| Co | Kde | Ověří |
+|---|---|---|
+| profil Edge `cloudedu`, MFA | Edge | krok 1 |
+| web `/sites/spodev-<ini>` (vlastník) | tenant | krok 2 |
+| fnm + Node.js 22 jako výchozí | `$PROFILE.CurrentUserAllHosts`, fnm | kroky 4–5 |
+| git (nebo ZIP materiálů) | stroj | krok 6 |
+| `yo`, `@microsoft/generator-sharepoint@1.23.2`, `@rushstack/heft`, `@pnp/cli-microsoft365` | globální npm pro Node 22 | krok 7 |
+| `SPFX_SERVE_TENANT_DOMAIN` | proměnná uživatele | krok 8 |
+| rozšíření ESLint (a volitelně SharePoint Framework Toolkit) | VS Code | krok 9 |
+| materiály kurzu | `$HOME\gopas-spo_dev_1` (jen ke čtení) | krok 10 |
+
+Tento stav je **Startovní čárou** modulu [`project-anatomy`](../project-anatomy/) — tam
+vznikne první kód.
 
 ## Ověření
 

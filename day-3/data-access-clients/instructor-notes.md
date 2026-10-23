@@ -2,12 +2,14 @@
 
 ## Timing
 
-- ~20 min výklad + 50 min lab + 5 min sběr tabulek z kroku 5.
-- Kroky 3–4 jsou kopírování; hlídat, aby studenti **nepřepsali manifest** (ID komponenty).
+- ~20 min výklad + 50 min lab + 5 min sběr tabulek z kroku 11.
+- Kroky 4–9 jsou přepis kódu podle labu; v kroku 10 se kopíruje **jen** `preconfiguredEntries`,
+  ne celý manifest (ID komponenty). Kroky 2 a 10 = `Set-StudentIdentity.ps1`; hlídat, že ho
+  spustili všichni.
 
 ## Go/no-go — otestovat před během
 
-- **Den předem změřit krok 5 na čistém účtu.** Vyplnit tabulku sem. Pokud `/users` bez
+- **Den předem změřit krok 11 na čistém účtu.** Vyplnit tabulku sem. Pokud `/users` bez
   schválení vrací 403, blok běží beze změny — `permissions-consent` je pak nutnost, ne formalita.
 - SharePoint admin centrum → *Advanced* → **API access**: žádná schválená oprávnění z dřívějších
   kurzů pro Microsoft Graph (`User.Read.All`, `Presence.Read.All`). Jinak lab neměří výchozí

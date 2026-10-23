@@ -60,7 +60,7 @@ export default class PortalBannerApplicationCustomizer
     close.type = 'button';
     close.className = styles.close;
     close.setAttribute('aria-label', strings.Dismiss);
-    close.textContent = '×';
+    close.textContent = '\u00D7'; // multiplication sign as the close glyph
     close.addEventListener('click', () => {
       this._dismiss(message);
       banner.remove();

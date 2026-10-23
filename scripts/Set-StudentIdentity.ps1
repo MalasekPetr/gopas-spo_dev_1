@@ -77,7 +77,7 @@ $root = (Resolve-Path $ProjectPath).Path
 function Get-RelativePath {
     param([string]$Path)
     Push-Location -LiteralPath $root
-    try { return (Resolve-Path -LiteralPath $Path -Relative).TrimStart('.', '\') } finally { Pop-Location }
+    try { return (Resolve-Path -LiteralPath $Path -Relative) -replace '^\.\\', '' } finally { Pop-Location }
 }
 $packageSolutionPath = Join-Path $root 'config\package-solution.json'
 $packageJsonPath = Join-Path $root 'package.json'

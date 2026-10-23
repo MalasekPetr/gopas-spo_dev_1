@@ -5,8 +5,8 @@
 - ~25 min výklad + 60 min lab + 5 min shrnutí dne.
 - Chránit kroky 2–5 a 9–10 (smyčka, lokalizační past, moderní stránka, „kód je jen u mě").
   Kroky 6 a 8 padají první.
-- Kdo je pozadu z `project-anatomy`, nedohání instalaci — převezme `src/` ze `solution/`
-  až po instalaci vlastního projektu.
+- Kdo je pozadu z `project-anatomy`, nedohání mapu ani měření — převezme celý
+  `project-anatomy/solution/` podle scénáře (`robocopy`, `npm install`, `Set-StudentIdentity.ps1`).
 
 ## Go/no-go — otestovat před během
 

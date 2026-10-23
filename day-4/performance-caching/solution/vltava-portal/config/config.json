@@ -1,0 +1,54 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "portal-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/portal/PortalWebPart.js",
+          "manifest": "./src/webparts/portal/PortalWebPart.manifest.json"
+        }
+      ]
+    },
+    "employee-directory-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/employeeDirectory/EmployeeDirectoryWebPart.js",
+          "manifest": "./src/webparts/employeeDirectory/EmployeeDirectoryWebPart.manifest.json"
+        }
+      ]
+    },
+    "equipment-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/equipment/EquipmentWebPart.js",
+          "manifest": "./src/webparts/equipment/EquipmentWebPart.manifest.json"
+        }
+      ]
+    },
+    "portal-banner-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/portalBanner/PortalBannerApplicationCustomizer.js",
+          "manifest": "./src/extensions/portalBanner/PortalBannerApplicationCustomizer.manifest.json"
+        }
+      ]
+    },
+    "issue-equipment-command-set": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/issueEquipment/IssueEquipmentCommandSet.js",
+          "manifest": "./src/extensions/issueEquipment/IssueEquipmentCommandSet.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "PortalWebPartStrings": "lib/webparts/portal/loc/{locale}.js",
+    "EmployeeDirectoryWebPartStrings": "lib/webparts/employeeDirectory/loc/{locale}.js",
+    "EquipmentWebPartStrings": "lib/webparts/equipment/loc/{locale}.js",
+    "PortalBannerApplicationCustomizerStrings": "lib/extensions/portalBanner/loc/{locale}.js",
+    "IssueEquipmentCommandSetStrings": "lib/extensions/issueEquipment/loc/{locale}.js"
+  }
+}

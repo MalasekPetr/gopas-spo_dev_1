@@ -8,14 +8,23 @@
 Tabulka devíti požadavků Vltava Servis, u každého zvolená technologie, místo, kam tečou data,
 a kdo musí řešení schválit.
 
-**Jak lab číst:** každý krok končí **Checkpointem** — nesedí-li, nepokračuj.
+**Jak lab číst:** návrhový lab bez kódu. **Startovní čára** říká, co máš mít před sebou,
+každý krok končí **Checkpointem** — nesedí-li, nepokračuj — a **Výstupní stav** popisuje
+hotovou tabulku, ke které se týden vrací.
 
 ## Předpoklady
 
 - Přečtený [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md) a výklad
   [`README.md`](README.md).
 
-## Kroky
+## Startovní čára
+
+První blok kurzu — žádný kód ani nástroje. Vstupem je zadání firmy Vltava Servis ve
+[scénáři](../../scenario-vltava-portal.md) a devět požadavků v tabulce kroku 1.
+
+**Checkpoint:** máš otevřený soubor `volba-technologie.md` (nebo papír) a parťáka do dvojice.
+
+## Část A — tabulka rozhodnutí
 
 ### 1. Zvol technologii pro každý požadavek
 
@@ -56,6 +65,20 @@ navíc (vlastník webu)* · *admin tenantu (App Catalog)* · *admin tenantu (API
 
 **Checkpoint:** u řádků, kde jsi zvolil SPFx a data jdou do Microsoft Graph, je ve sloupci
 **API oprávnění** — ne jen „App Catalog".
+
+## Výstupní stav
+
+Soubor `volba-technologie.md` (nebo papír) s tabulkou devíti požadavků: u každého
+technologie, tok dat a schvalovatel. Kód nevzniká, `solution/` modul nemá.
+
+| Výstup | Kde | K čemu dál |
+|---|---|---|
+| tabulka 9 rozhodnutí | `volba-technologie.md` | srovnání s [`reseni-volba-technologie.md`](reseni-volba-technologie.md) po společné diskuzi |
+| řádky 2, 3, 5 a 7 | tamtéž | komponenty, které se celý týden staví ve `vltava-portal` (viz [scénář](../../scenario-vltava-portal.md#co-student-staví)) |
+| sloupec *Kdo schvaluje* | tamtéž | návrat ve středu u App Catalogu a API oprávnění |
+
+Navazující modul [`dev-environment`](../dev-environment/) z tabulky nic nepřebírá — začíná
+instalací.
 
 ## Ověření
 

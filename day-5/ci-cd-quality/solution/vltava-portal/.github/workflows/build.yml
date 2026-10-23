@@ -1,0 +1,34 @@
+# CI for the vltava-portal SPFx solution: lint, TypeScript, unit tests, bundle size gate, .sppkg.
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # npm ci installs exactly what package-lock.json says (the lock file must be committed).
+      - run: npm ci
+
+      # heft: lint + TypeScript + Jest (unit and localization tests) + webpack + .sppkg
+      - run: npm run build
+
+      - name: Bundle size gate
+        shell: pwsh
+        run: ./scripts/Measure-BundleSize.ps1 -ProjectPath . -MaxBytes 500000
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sppkg
+          path: sharepoint/solution/*.sppkg
+          if-no-files-found: error

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/spfx-serve.schema.json",
+  "port": 4321,
+  "https": true,
+  "initialPage": "https://{tenantDomain}/_layouts/workbench.aspx",
+  "serveConfigurations": {
+    "default": {
+      "pageUrl": "https://{tenantDomain}/SitePages/Home.aspx",
+      "customActions": {
+        "6a761fcd-ab70-4c8d-95d9-033c26a01409": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "message": "Planned maintenance of the service desk on Friday 17:00-19:00.",
+            "level": "warning"
+          }
+        }
+      }
+    },
+    "portalBanner": {
+      "pageUrl": "https://{tenantDomain}/SitePages/Home.aspx",
+      "customActions": {
+        "6a761fcd-ab70-4c8d-95d9-033c26a01409": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "message": "Planned maintenance of the service desk on Friday 17:00-19:00.",
+            "level": "warning"
+          }
+        }
+      }
+    },
+    "issueEquipment": {
+      "pageUrl": "https://{tenantDomain}/Lists/Equipment/AllItems.aspx",
+      "customActions": {
+        "34ffa051-ba09-45b3-ab23-634fb36d5973": {
+          "location": "ClientSideExtension.ListViewCommandSet",
+          "properties": {}
+        }
+      }
+    }
+  }
+}

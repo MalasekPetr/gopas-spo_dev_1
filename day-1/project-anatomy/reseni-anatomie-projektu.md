@@ -7,7 +7,7 @@ GUIDy má každý student jiné — v tabulce je jen místo, kde je najít.
 |---|---|---|---|
 | 1 | `id` řešení | GUID v `solution.id`; stejná hodnota je v `.yo-rc.json` jako `libraryId` | `config/package-solution.json` |
 | 2 | `id` web partu | GUID v `id` | `src/webparts/portal/PortalWebPart.manifest.json` |
-| 3 | název v toolboxu | `preconfiguredEntries[0].title.default` = `Portal` | `src/webparts/portal/PortalWebPart.manifest.json` |
+| 3 | název v toolboxu | `preconfiguredEntries[0].title.default` = `Portal (<ini>)` — generátor dá `Portal`, příponu doplní `Set-StudentIdentity.ps1` | `src/webparts/portal/PortalWebPart.manifest.json` |
 | 4 | lokální server | skript `start` → `heft start --clean` | `package.json` |
 | 5 | verze Node.js | `engines.node` = `>=22.14.0 < 23.0.0` | `package.json` |
 | 6 | výsledný `.sppkg` | `paths.zippedPackage` = `solution/vltava-portal-<ini>.sppkg`, relativně ke složce `sharepoint/` | `config/package-solution.json` |

@@ -122,13 +122,13 @@ moderní stránce v `first-webpart` (jediná cesta k testování extensions ve �
 4. motiv sekce a `escape()` v `react-fluent-ui` (kroky 7–8) jako demo (−10).
 **Nekrátit** `react-fluent-ui` — struktura komponent z tohoto bloku nese dny 3–5.
 
-**Den 3** — 1. porovnání požadavků v Network (`data-access-clients`, krok 7) jako demo (−10);
-2. ověření chybějícího seznamu v `pnpjs` (krok 8) jako demo (−10);
+**Den 3** — 1. porovnání požadavků v Network (`data-access-clients`, krok 13) jako demo (−10);
+2. ověření chybějícího seznamu v `pnpjs` (krok 17) jako demo (−10);
 3. pohled do dependency auditu v `bundle-baseline` (krok 5) jako demo (−5).
 **Nekrátit** `permissions-consent` (bez schválených oprávnění nefunguje Graph) ani
 `bundle-baseline` (den 4 nemá s čím srovnávat).
 
-**Den 4** — 1. JSON formátování v `extensions` (krok 7) jako demo (−10);
+**Den 4** — 1. JSON formátování v `extensions` (krok 12) jako demo (−10);
 2. experiment s lazy loadingem v `performance-caching` (krok 3) jako demo s čísly z README (−15).
 **Nekrátit** `packaging-deployment` — capstone stojí na nasazeném řešení.
 

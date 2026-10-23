@@ -8,19 +8,38 @@
 Web part `Portal` s identitou Rozcestníku Vltava Servis běží z tvého stroje v hosted
 workbenchi i na testovací stránce webu `/sites/spodev-<ini>` s Debug Toolbarem.
 
-**Jak lab číst:** každý krok končí **Checkpointem** — nesedí-li, nepokračuj.
+**Jak lab číst:** začni u **Startovní čáry** — ověř, že tvůj kód je tam, kde lab začíná.
+Pak jdi po částech; každý krok říká, **který soubor** měníš, **co** do něj patří a **proč**,
+a končí **Checkpointem** — nesedí-li, nepokračuj. Na konci je **Výstupní stav**: cílový kód,
+se kterým se můžeš porovnat a který je startem dalšího modulu.
 
 ## Předpoklady
 
 - Hotový [`../project-anatomy/`](../project-anatomy/): projekt `vltava-portal-<ini>`
-  s `node_modules`, `npm run build` prošel.
+  s `node_modules` a s identitou ze `Set-StudentIdentity.ps1`, `npm run build` prošel.
 - Profil Edge `cloudedu` přihlášený na tenant, `SPFX_SERVE_TENANT_DOMAIN` nastavená.
 
-## Kroky
+## Startovní čára
+
+Lab začíná u stavu po modulu [`project-anatomy`](../project-anatomy/): čistý výstup
+generátoru, referenční kód
+[`../project-anatomy/solution/vltava-portal/`](../project-anatomy/solution/vltava-portal/).
+
+- Pokračuješ ve **vlastním** projektu `vltava-portal-<ini>` — ověř checkpoint níže.
+- Nemáš ho, nebo je rozbitý: převezmi startovní kód podle
+  [scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)
+  (`robocopy`, `npm install`, **`Set-StudentIdentity.ps1`**).
+
+**Checkpoint:** v kořeni projektu je soubor `.student-identity` s tvými iniciálami,
+`src/webparts/portal/components/Portal.tsx` obsahuje text `Well done` a
+`src/webparts/portal/PortalWebPart.manifest.json` má titulek `Portal (<ini>)`.
+
+## Část A — lokální server a workbench
 
 ### 1. Důvěřuj vývojovému certifikátu
 
-V kořeni projektu:
+Lokální server běží na `https://localhost:4321` a prohlížeč mu musí věřit. Certifikát
+vytvoří a do úložiště Windows zapíše Heft. V kořeni projektu:
 
 ```powershell
 npx heft trust-dev-cert
@@ -59,14 +78,22 @@ https://<tenant>.sharepoint.com/sites/spodev-<ini>/_layouts/workbench.aspx
 
 a na konec adresy připoj query string z terminálu (krok 2). Na dotaz prohlížeče
 *„Allow this site to access devices on your local network?"* odpověz **Allow**. Pak
-**+** → v toolboxu **Portal**.
+**+** → v toolboxu **Portal (<ini>)**.
 
 **Checkpoint:** na plátně je web part s textem `Well done, <tvé jméno>!` a řádkem
 o prostředí (*The app is running on your local environment as SharePoint web part*).
 
-### 4. Udělej z web partu Rozcestník
+## Část B — ze šablony Rozcestník
 
-Nahraď celý obsah `src/webparts/portal/components/Portal.tsx`:
+Server nech běžet: každé uložení spustí novou kompilaci a workbench po obnovení (F5) ukáže
+změnu. Kroky 4–7 jsou celý rozdíl mezi startovním a cílovým kódem.
+
+### 4. Nahraď komponentu šablony Rozcestníkem
+
+Šablona generátoru ukazuje uvítací obrázek a odkazy na dokumentaci SPFx. Rozcestník
+potřebuje nadpis, pozdrav, popis z property pane a seznam odkazů firmy.
+
+Soubor `src/webparts/portal/components/Portal.tsx` — **změna**: nahraď celý obsah:
 
 ```tsx
 import * as React from 'react';
@@ -110,29 +137,68 @@ export default class Portal extends React.Component<IPortalProps> {
 }
 ```
 
-Uložit. Terminál ukáže novou kompilaci — **s chybou**: `PortalTitle` a `Greeting` neexistují.
+- Importy `welcome-dark.png` a `welcome-light.png` zmizely — obrázky ve složce `assets/`
+  zůstávají, jen je nic nenačítá. `isDarkTheme` zůstává v `IPortalProps`, komponenta ho
+  teď nečte.
+- Texty jdou přes modul `PortalWebPartStrings`, ne natvrdo — klíče `PortalTitle` a
+  `Greeting` zatím neexistují.
+- `key={link.url}` — React potřebuje u položek seznamu stabilní klíč.
 
-**Checkpoint:** v terminálu je chyba TypeScriptu `Property 'PortalTitle' does not exist on
-type 'IPortalWebPartStrings'`. To je správně — pokračuj krokem 5.
+Komponenta používá třídu `styles.environment`, kterou šablona nemá. Soubor
+`src/webparts/portal/components/Portal.module.scss` — **změna**: na konec souboru přidej:
+
+```scss
+
+.environment {
+  font-size: 12px;
+  opacity: 0.7;
+}
+```
+
+- `*.module.scss` je **CSS modul**: build z něj vygeneruje typ se jmény tříd a
+  `styles.environment` bez této třídy neprojde kompilací
+  (`Property 'environment' does not exist on type 'IStyles'`).
+
+Ulož oba soubory. Terminál ukáže novou kompilaci — **s chybou**.
+
+**Checkpoint:** v terminálu jsou chyby TypeScriptu `Property 'PortalTitle' does not exist on
+type 'IPortalWebPartStrings'` a totéž pro `Greeting` — a žádná jiná. To je správně —
+pokračuj krokem 5.
 
 ### 5. Přidej lokalizované texty — a zjisti, co TypeScript nehlídá
 
-1. Do `src/webparts/portal/loc/mystrings.d.ts` přidej do rozhraní dva řádky:
+Lokalizace má dvě půlky: **deklaraci** typu (`mystrings.d.ts`) hlídá TypeScript, **hodnoty**
+(`en-us.js`) se načtou až za běhu. Pořadí kroků je schválně „špatné", abys viděl, co build
+nepozná.
+
+1. Soubor `src/webparts/portal/loc/mystrings.d.ts` — **změna**: najdi
 
    ```typescript
-   PortalTitle: string;
-   Greeting: string;
+     UnknownEnvironment: string;
+   ```
+
+   a přidej za něj:
+
+   ```typescript
+     PortalTitle: string;
+     Greeting: string;
    ```
 
 2. Ulož. Kompilace teď **projde**. Obnov workbench (F5).
 3. Prohlédni si web part: nadpis chybí úplně a pozdrav začíná čárkou (`, <jméno>!`).
    Hodnoty jsou `undefined` a React je nevykreslí.
-4. Teprve teď doplň texty do `src/webparts/portal/loc/en-us.js` — na začátek objektu, hned
-   pod řádek `return {` (čárky na konci řádků pak sedí):
+4. Teprve teď doplň hodnoty. Soubor `src/webparts/portal/loc/en-us.js` — **změna**: najdi
 
    ```javascript
-   "PortalTitle": "Vltava Servis portal",
-   "Greeting": "Hello",
+   define([], function() {
+     return {
+   ```
+
+   a přidej za řádek `return {` (čárky na konci řádků pak sedí):
+
+   ```javascript
+       "PortalTitle": "Vltava Servis portal",
+       "Greeting": "Hello",
    ```
 
 5. Ulož a obnov workbench.
@@ -143,16 +209,16 @@ nadpis a pozdrav začínal čárkou. **Checkpoint (bod 5):** web part ukazuje *V
 
 ### 6. Uprav styl
 
-Do `src/webparts/portal/components/Portal.module.scss` přidej na konec:
+Odkazy mají být bez odrážek a pod sebou.
+
+Soubor `src/webparts/portal/components/Portal.module.scss` — **změna**: najdi
 
 ```scss
-.environment {
-  font-size: 12px;
-  opacity: 0.7;
-}
+.links {
+  a {
 ```
 
-a ve stejném souboru u třídy `.links` přidej pod řádek `.links {` dvě vlastnosti:
+a přidej za řádek `.links {`:
 
 ```scss
   list-style: none;
@@ -163,12 +229,31 @@ a ve stejném souboru u třídy `.links` přidej pod řádek `.links {` dvě vla
 
 ### 7. Dej web partu jméno v toolboxu
 
-V `src/webparts/portal/PortalWebPart.manifest.json` změň v `preconfiguredEntries[0]`:
+Název, popis a ikonu v toolboxu nedává kód, ale manifest komponenty.
+
+Soubor `src/webparts/portal/PortalWebPart.manifest.json` — **změna**: v
+`preconfiguredEntries[0]` najdi
 
 ```json
-"title": { "default": "Vltava Portal (<ini>)" },
+"title": { "default": "Portal (<ini>)" },
+"description": { "default": "Portal description" },
+"officeFabricIconFontName": "Page",
+```
+
+(v referenčním `solution/` je titulek bez přípony, `"Portal"`) a nahraď:
+
+```json
+"title": { "default": "Vltava Portal" },
 "description": { "default": "Welcome and company links for Vltava Servis" },
 "officeFabricIconFontName": "Globe",
+```
+
+Iniciály do titulku **nepiš** — doplní je skript identity. Spusť ho znovu; ID nechá být
+a jen přidá k novému titulku příponu `(<ini>)`:
+
+```powershell
+& "$HOME\gopas-spo_dev_1\scripts\Set-StudentIdentity.ps1" -Initials <ini> `
+    -ProjectPath "$HOME\spodev\vltava-portal-<ini>"
 ```
 
 Iniciály v názvu nejsou ozdoba: ve středu nasadí celá třída do jednoho tenantového App
@@ -177,8 +262,10 @@ Catalogu a bez nich by toolbox obsahoval patnáct stejně pojmenovaných web par
 Změny manifestu se při běžícím serveru nemusí projevit — zastav server (**Ctrl+C**) a spusť
 znovu `npm start -- --nobrowser`.
 
-**Checkpoint:** v toolboxu workbenche je web part pod názvem **Vltava Portal (<ini>)**
-s ikonou zeměkoule.
+**Checkpoint:** skript vypíše jedinou změnu `PortalWebPart.manifest.json (title suffix)` a
+v toolboxu workbenche je web part pod názvem **Vltava Portal (<ini>)** s ikonou zeměkoule.
+
+## Část C — property pane a skutečná stránka
 
 ### 8. Ověř reaktivní property pane
 
@@ -213,6 +300,27 @@ Zastav server v terminálu (**Ctrl+C**) a obnov testovací stránku (F5).
 Kód existuje jen na tvém stroji — nic se nenasadilo do tenantu. Stránku zavři **bez
 publikování** (*Discard changes*).
 
+## Výstupní stav
+
+Cílový kód: [`solution/vltava-portal/`](solution/vltava-portal/). Proti Startovní čáře se
+změnilo:
+
+| Soubor | Změna | Proč |
+|---|---|---|
+| `src/webparts/portal/components/Portal.tsx` | změněný (celý) | Rozcestník místo uvítací šablony: nadpis, pozdrav, popis, tři odkazy |
+| `src/webparts/portal/loc/mystrings.d.ts` | změněný | deklarace klíčů `PortalTitle` a `Greeting` |
+| `src/webparts/portal/loc/en-us.js` | změněný | hodnoty klíčů `PortalTitle` a `Greeting` |
+| `src/webparts/portal/components/Portal.module.scss` | změněný | třída `.environment` (krok 4), odkazy bez odrážek (krok 6) |
+| `src/webparts/portal/PortalWebPart.manifest.json` | změněný | titulek, popis a ikona v toolboxu |
+
+Tvůj projekt se od `solution/` liší navíc jen identitou (ID, `-<ini>` v názvech,
+`(<ini>)` v titulku) a souborem `.student-identity`.
+
+Tento stav je **Startovní čárou** modulu [`property-pane`](../../day-2/property-pane/). Když ti
+něco nevyšlo, převezmi ho podle
+[scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)
+a do dalšího bloku vstupuješ se stejným základem jako ostatní.
+
 ## Ověření
 
 - [ ] Web part **Vltava Portal (<ini>)** běží ve workbenchi i na stránce `Test portal` s Debug Toolbarem.
@@ -233,9 +341,11 @@ publikování** (*Discard changes*).
   zadaná.
 - **Chyby TypeScriptu po kroku 4 nezmizí** — porovnat s
   [`solution/vltava-portal/src/webparts/portal/`](solution/vltava-portal/src/webparts/portal/).
-- **Při časové tísni:** kroky 6 a 8 vynechat. Pro dohnání převzít `src/` ze
+- **Titulek v toolboxu je bez iniciál** — po kroku 7 neproběhl znovu `Set-StudentIdentity.ps1`.
+- **Při časové tísni:** kroky 6 a 8 vynechat. Pro dohnání převzít cílový kód ze
   [`solution/vltava-portal/`](solution/vltava-portal/) podle
-  [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md) (včetně nových ID).
+  [scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)
+  (celý projekt, `npm install`, `Set-StudentIdentity.ps1`).
 
 ## Zdroje (Microsoft)
 

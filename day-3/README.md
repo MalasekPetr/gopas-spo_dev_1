@@ -23,8 +23,8 @@ Celkem **300 min**.
 
 Škrtá se odshora:
 
-1. Porovnání požadavků v Network (`data-access-clients`, krok 7) jako demo (−10).
-2. Ověření chybějícího seznamu v `pnpjs` (krok 8) jako demo (−10).
+1. Porovnání požadavků v Network (`data-access-clients`, krok 13) jako demo (−10).
+2. Ověření chybějícího seznamu v `pnpjs` (krok 17) jako demo (−10).
 3. Pohled do dependency auditu v `bundle-baseline` (krok 5) jako demo (−5).
 
 **Nekrátit** `permissions-consent` — bez schválených oprávnění nefunguje Graph. **Nekrátit**

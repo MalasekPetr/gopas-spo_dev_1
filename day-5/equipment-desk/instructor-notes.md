@@ -3,9 +3,9 @@
 ## Timing
 
 - ~10 min úvod (diagram dvou seznamů, lookup čtení vs. zápis, batch není transakce),
-  ~100 min samostatně, ~10 min rezerva na nasazení.
+  ~108 min samostatně (součet časů kroků), ~2 min rezerva — blok je na hraně; při skluzu převzít kód před krokem 12.
 - Lektor **nepředvádí** — chodí, odpovídá, kontroluje checkpointy. Kdo je napřed, dělá bonusy.
-- Kdo do 13:30 nemá funkční výdej, převezme `src/` ze `solution/` (postup ve scénáři) — capstone
+- Kdo do 13:30 nemá funkční výdej, převezme kód ze `solution/` (postup ve scénáři, včetně `Set-StudentIdentity.ps1`) — capstone
   potřebuje běžící aplikaci, ne vlastní kód za každou cenu.
 
 ## Go/no-go — otestovat před během

@@ -3,8 +3,9 @@
 ## Timing
 
 - ~25 min výklad + 60 min lab + 5 min shrnutí.
-- Kroky 2–7 jsou převážně kopírování a čtení kódu (~20 min). Hlídat, aby studenti **četli**
-  `links.ts` a tabulku v kroku 6 — jinak odpoledne nerozumí, co přestavují.
+- Kroky 2–7 jsou rozdílové úpravy kódu (~35 min; krok 6 má 8 dílčích kroků 6a–6h). Hlídat,
+  aby studenti **četli** `links.ts` a odrážky pod kódem v krocích 6e–6h — jinak odpoledne
+  nerozumí, co přestavují.
 - Chránit kroky 8 a 10 (validace, asynchronní dropdown). Kroky 9 a 11 padají první.
 
 ## Go/no-go — otestovat před během

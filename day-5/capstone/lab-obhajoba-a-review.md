@@ -8,12 +8,34 @@
 Předvedená Výdejna vybavení z App Catalogu, odpovědi na tři otázky z README a `BACKLOG.md`
 s položkami, které mají ověřitelné kritérium hotovo.
 
-**Jak lab číst:** každý krok končí **Checkpointem** — nesedí-li, nepokračuj.
+**Jak lab číst:** lab je nekódový — začni u **Startovní čáry** (co máš mít na vstupu), každý
+krok končí **Checkpointem** — nesedí-li, nepokračuj. **Výstupní stav** říká, co po labu
+existuje.
 
 ## Předpoklady
 
 - Řešení verze 1.2.0.0 nasazené na webu `spodev-<ini>`, stránka *Vydejna* (lab `equipment-desk`).
 - Číslo z `Measure-BundleSize.ps1` (krok 12 labu `equipment-desk`).
+
+## Startovní čára
+
+Vstupem jsou tři věci z dnešního dne:
+
+1. **Vlastní** projekt `vltava-portal-<ini>` ve stavu po labu
+   [`equipment-desk`](../equipment-desk/) (referenční kód
+   [`../equipment-desk/solution/vltava-portal/`](../equipment-desk/solution/vltava-portal/)),
+   nasazený z App Catalogu jako verze 1.2.0.0, se stránkou *Vydejna*.
+2. Číslo z brány velikosti (krok 12 labu `equipment-desk`) s datem měření.
+3. `BACKLOG.md` s položkou *Upgrade na SPFx 1.24* z labu
+   [`spfx-whats-next`](../spfx-whats-next/lab-odhad-upgradu.md).
+
+Kdo nemá kód hotový, převezme ho podle
+[scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)
+(`robocopy`, `npm install`, **`Set-StudentIdentity.ps1`**) — nasazení ale už nestihne;
+v rubrice pak platí Fallback níže. Kód se v tomto labu **nemění**.
+
+**Checkpoint:** v App Catalogu je u tvého řešení `vltava-portal-<ini>` verze `1.2.0.0` a
+v kořeni projektu existuje `BACKLOG.md`.
 
 ## Kroky
 
@@ -48,6 +70,16 @@ Get-Content .\config\package-solution.json | Select-String -Pattern 'scope'
 ```
 
 **Checkpoint:** žádná položka nemá kritérium typu „zlepšit" nebo „optimalizovat" bez čísla.
+
+## Výstupní stav
+
+- **Předvedená** Výdejna z App Catalogu (verze 1.2.0.0) a odpovědi na tři otázky z README,
+  tvrzení o velikosti s číslem a datem.
+- **Doplněný** `BACKLOG.md` v kořeni vlastního projektu: položky z rubriky, upgrade na SPFx 1.24
+  a napůl hotový výdej — každá s problémem, ověřitelným kritériem hotovo a odhadem.
+- **Beze změny:** kód projektu — konečný stav kurzu je
+  [`../equipment-desk/solution/vltava-portal/`](../equipment-desk/solution/vltava-portal/).
+  Referenční `solution/` tento lab nemá.
 
 ## Ověření
 

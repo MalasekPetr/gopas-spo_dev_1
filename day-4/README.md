@@ -17,7 +17,7 @@ Celkem **300 min**.
 
 Škrtá se odshora:
 
-1. JSON formátování v `extensions` (krok 7) jako demo (−10).
+1. JSON formátování v `extensions` (krok 12) jako demo (−10).
 2. Experiment s lazy loadingem v `performance-caching` (krok 3) jako demo s čísly z README (−15).
 
 **Nekrátit** `packaging-deployment` — capstone stojí na nasazeném řešení.

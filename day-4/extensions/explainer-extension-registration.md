@@ -107,7 +107,7 @@ Ladicí adresa nic neregistruje, jen **simuluje** `CustomAction`
   a `properties`.
 
 Povolené ladicí skripty platí po zbytek relace prohlížeče; vypnout je jde parametrem
-`reset=true` (tamtéž). Postup je v labu, krok 3.
+`reset=true` (tamtéž). Postup je v labu, krok 6.
 
 ## Field Customizer: registrace na poli
 
