@@ -164,8 +164,24 @@ přestavby kurzu.
   je **negativní**.
 - Sekce `## Ověření` na konci je agregát checkpointů jako `- [ ]` checkboxy.
 - Sekce `## Fallback` je povinná: co dělat, když krok selže, a varianta pro časovou tíseň.
-- Kódový lab má `solution/` se stavem **po** labu. Kdo nestihne, navazuje ze `solution/`
+- **Kódový lab = startovní kód → rozdílový tutoriál → cílový kód** (vzor kurzu SPO_COPILOT,
+  šablona [`_templates/lab.md`](./_templates/lab.md)):
+  - `## Startovní čára` odkazuje na `solution/` **předchozího** modulu a má checkpoint, že
+    student stojí tam, kde lab začíná.
+  - Kroky jsou **rozdíly**: u každého soubor, „nový" nebo „změna", konkrétní kód (celý nový
+    soubor, u změny „najdi … a nahraď / přidej za …") a proč. Pokyn „zkopíruj ze solution"
+    jen u souborů, které nejsou podstatou labu (lokalizační `.js`, obrázky, vygenerovaný
+    boilerplate).
+  - Kód v krocích **přesně odpovídá** rozdílu mezi startovním a cílovým `solution/`.
+  - `## Výstupní stav` odkazuje na vlastní `solution/` a tabulkou shrne změněné soubory.
+- Každý kódový modul nosné linky má `solution/vltava-portal/` se stavem **po** labu — celý
+  projekt bez `node_modules`, `npm run build` projde. Řetěz `solution/` je spojitý: cíl modulu
+  = start dalšího.
+- `solution/` nesou **šablonová ID kurzu** (stejná ve všech modulech, komponenta podle aliasu).
+  Před nasazením je student vždy přepíše skriptem `scripts/Set-StudentIdentity.ps1`
   (postup v [`scenario-vltava-portal.md`](./scenario-vltava-portal.md)).
+- Nekódové laby (návrh, instalace, odhad) mají místo kódu v `Startovní čáře` a `Výstupním
+  stavu` popis vstupu a výstupu (soubor, nainstalovaný nástroj, rozhodnutí).
 
 ## Kód
 

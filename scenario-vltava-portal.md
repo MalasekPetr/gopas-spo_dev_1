@@ -79,7 +79,8 @@ jméno:
 & "$HOME\gopas-spo_dev_1\scripts\Set-StudentIdentity.ps1" -Initials <ini> -ProjectPath <projekt>
 ```
 
-- ID **nejsou náhodná**: jsou odvozená z iniciál a aliasu komponenty (UUID v5). Stejný
+- ID **nejsou náhodná**: jsou odvozená z iniciál, názvu projektu (`vltava-portal`,
+  `kendo-sandbox`) a aliasu komponenty (UUID v5). Stejný
   student dostane vždy stejná ID — ve vlastním projektu i v kódu převzatém ze `solution/`
   kteréhokoli modulu. App Catalog proto vidí pořád **totéž** řešení a upgrade funguje.
 - Dva studenti s různými iniciálami nemají žádné ID společné. **Stejné iniciály** rozliší

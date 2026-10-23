@@ -8,7 +8,7 @@
 
       TEMPLATE   a package carries the course template solution ID -- it was deployed without
                  scripts/Set-StudentIdentity.ps1 and the next such upload overwrites it
-      NO-SUFFIX  a vltava-portal package whose name has no -<initials> suffix
+      NO-SUFFIX  a course package (vltava-portal, kendo-sandbox) without the -<initials> suffix
       OK         a personalized package (initials parsed from the name)
 
     Two students with the SAME initials produce the same IDs; the catalog then silently holds
@@ -45,8 +45,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # Solution ID of the course template (solution/ folders in the public repo). Not a tenant value.
-$templateSolutionId = '63b58c1b-d1ac-4c19-8506-3f5e9e607ac5'
-$personalized = '^vltava-portal-(?<ini>[a-z]{2,3}[0-9]?)-client-side-solution$'
+$templateSolutionIds = @(
+    '63b58c1b-d1ac-4c19-8506-3f5e9e607ac5'   # vltava-portal
+    '2704e22b-e44c-4cb2-b8d7-7e77796a13b9'   # kendo-sandbox (opt-kendo-react)
+)
+$personalized = '^(vltava-portal|kendo-sandbox)-(?<ini>[a-z]{2,3}[0-9]?)-client-side-solution$'
 
 if (-not (Get-Module -ListAvailable -Name PnP.PowerShell)) {
     throw 'PnP.PowerShell is not installed. Run: Install-Module PnP.PowerShell -Scope CurrentUser'
@@ -54,12 +57,15 @@ if (-not (Get-Module -ListAvailable -Name PnP.PowerShell)) {
 
 Connect-PnPOnline -Url $AppCatalogUrl -Interactive -ClientId $ClientId.ToString()
 
-$apps = @(Get-PnPApp -Scope Tenant | Where-Object { $_.Title -like 'vltava-portal*' -or $_.Id.ToString() -eq $templateSolutionId })
+$apps = @(Get-PnPApp -Scope Tenant | Where-Object {
+        $_.Title -like 'vltava-portal*' -or $_.Title -like 'kendo-sandbox*' -or
+        $templateSolutionIds -contains $_.Id.ToString().ToLowerInvariant()
+    })
 
 $report = foreach ($app in $apps) {
     $id = $app.Id.ToString().ToLowerInvariant()
     $m = [regex]::Match($app.Title, $personalized)
-    $state = if ($id -eq $templateSolutionId) { 'TEMPLATE' } elseif (-not $m.Success) { 'NO-SUFFIX' } else { 'OK' }
+    $state = if ($templateSolutionIds -contains $id) { 'TEMPLATE' } elseif (-not $m.Success) { 'NO-SUFFIX' } else { 'OK' }
     [pscustomobject]@{
         State    = $state
         Initials = if ($m.Success) { $m.Groups['ini'].Value } else { '' }

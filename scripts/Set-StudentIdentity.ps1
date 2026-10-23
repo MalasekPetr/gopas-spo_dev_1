@@ -15,7 +15,8 @@
       names               package.json name, solution name, .sppkg file name, web part titles
 
     The IDs are UUID v5 (SHA-1 name-based) from a fixed course namespace and a slot name such
-    as "pm/solution" or "pm/component/PortalWebPart". Components are identified by their alias,
+    as "pm/vltava-portal/solution" or "pm/vltava-portal/component/PortalWebPart" (project =
+    package.json name without the "-<initials>" suffix). Components are identified by their alias,
     which is the same in the student's own project and in every solution/ folder of the course.
     Consequences:
       - The same student always gets the same IDs: taking over start code from any module
@@ -97,9 +98,14 @@ if (Test-Path $markerPath) {
 $map = [ordered]@{}
 $slots = [Collections.Generic.List[object]]::new()
 
+# Project name without the student suffix: one student can own several projects
+# (vltava-portal, kendo-sandbox) and each needs its own IDs.
+$packageName = (Get-Content $packageJsonPath -Raw | ConvertFrom-Json).name
+$projectBase = $packageName -replace "-$Initials$", ''
+
 function Add-Slot {
     param([string]$Slot, [string]$OldId)
-    $newId = New-UuidV5 -Namespace $namespace -Name "$Initials/$Slot"
+    $newId = New-UuidV5 -Namespace $namespace -Name "$Initials/$projectBase/$Slot"
     $script:slots.Add([pscustomobject]@{ Slot = $Slot; Old = $OldId.ToLowerInvariant(); New = $newId })
     if ($OldId.ToLowerInvariant() -ne $newId) { $script:map[$OldId.ToLowerInvariant()] = $newId }
 }
