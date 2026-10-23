@@ -174,7 +174,9 @@ if (Test-Path $teamsDir) {
             $newName = $map[$m.Groups['id'].Value.ToLowerInvariant()] + $m.Groups['rest'].Value
             $changed.Add("teams\$($icon.Name) -> $newName")
             if ($PSCmdlet.ShouldProcess($icon.FullName, "Rename to $newName")) {
-                Rename-Item $icon.FullName $newName
+                # After a takeover (robocopy over an own project) the student's icon already
+                # exists; the template icon replaces it (same image).
+                Move-Item -LiteralPath $icon.FullName -Destination (Join-Path $teamsDir $newName) -Force
             }
         }
     }
