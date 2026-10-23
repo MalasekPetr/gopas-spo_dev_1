@@ -750,6 +750,14 @@ oba titulky končí ` (<ini>)`, `id` je stejné jako po kroku 4 a `npm run build
 
 ## Část E — Vyzkoušej na vlastním webu (10 min)
 
+> [!WARNING] Hosted workbench končí 2026-12-01
+> SPFx 1.23 je podle release notes **poslední verze s podporou** hosted workbenche: je
+> deprecated od 2026-05-13 a 2026-12-01 se retiruje
+> ([SPFx v1.23.0 release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+> **Po tomto datu nebo v projektu na SPFx 1.24+** udělej kroky 14–17 (krok 17 na české stránce) na testovací stránce svého
+> webu s parametry `?loadSPFX=true&debugManifestsFile=https://localhost:4321/temp/build/manifests.js`
+> (postup: [`first-webpart`, krok 9](../../day-1/first-webpart/lab-prvni-webpart.md#9-otestuj-na-skutečné-stránce)).
+
 ### 14. Čti a filtruj
 
 `npm start`, workbench vlastního webu + query string → **Vltava Equipment (<ini>)**.

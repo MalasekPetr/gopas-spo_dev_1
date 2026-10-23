@@ -13,7 +13,7 @@ návody na internetu jsou většinou o verzi, která už neplatí.
 | **Řešení** (solution, `.sppkg`) | balíček, který se nahrává do App Catalogu; má vlastní `solution.id` | komponentou |
 | **Komponenta** (web part, extension) | jedna nasaditelná část řešení s vlastním manifestem a `id` | řešením — jedno řešení nese víc komponent |
 | **Tenantový App Catalog** | katalog aplikací pro celý tenant; v kurzu odtud vznikají žádosti o API oprávnění | **site collection App Catalogem** — katalog jednoho webu |
-| **Hosted workbench** | `/_layouts/workbench.aspx` na webu v tenantu | lokálním workbenchem — ten je retirovaný |
+| **Hosted workbench** | `/_layouts/workbench.aspx` na webu v tenantu; **deprecated** od SPFx 1.23.0 (2026-05-13), 1.23 je poslední verze s podporou, **retirement 2026-12-01** | lokálním workbenchem — ten je retirovaný už dřív |
 | **Debug na moderní stránce** | skutečná stránka + `?loadSPFX=true&debugManifestsFile=...`; zobrazí **Debug Toolbar** | hosted workbenchem — není to skutečná stránka |
 | **Reaktivní** property pane | změna pole se projeví hned | **nereaktivním** — změna až po tlačítku Použít |
 | **SPHttpClient** | volání SharePoint REST API v kontextu uživatele | **AadHttpClient** — volání API chráněných Entra ID |

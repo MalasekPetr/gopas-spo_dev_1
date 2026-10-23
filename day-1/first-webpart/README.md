@@ -35,11 +35,22 @@ a stránka v tenantu si z něj **v prohlížeči** stáhne manifesty a JavaScrip
 - kód běží jen pro toho, kdo má puštěný `npm start` — kolegovi u vedlejšího stroje se
   web part nenačte.
 
-> [!WARNING] Ověřit k datu běhu — stav k 2026-10.
-> **Hosted workbench je deprecated od 2026-05-13 a retiruje se 2026-12-01.** Doporučenou
-> náhradou je testování na moderní stránce s **Debug Toolbarem**. V říjnu 2026 workbench ještě
-> funguje a vygenerovaný `serve.json` ho pořád otevírá — kurz ukazuje obojí, ale za „správnou"
-> cestu bere moderní stránku. Zdroj:
+> [!WARNING] Hosted workbench: deprecated od 2026-05-13, retirement 2026-12-01
+> Release notes SPFx 1.23.0, sekce *Deprecations*: *„This is the last release that will include
+> support for the SharePoint Framework online workbench; the hosted workbench will be retired
+> on December 1, 2026. The recommended replacement is to use the SharePoint Framework Debug
+> Toolbar."* ([SPFx v1.23.0 release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+>
+> | Co | Kdy | Důsledek |
+> |---|---|---|
+> | deprecated | 2026-05-13 (vydání SPFx 1.23.0) | nové návody na něj nestavět |
+> | poslední verze s podporou | **SPFx 1.23** (kurz: 1.23.2) | projekt na **SPFx 1.24+** už hosted workbench nepodporuje |
+> | retirement | **2026-12-01** | `/_layouts/15/workbench.aspx` přestane fungovat pro všechny verze |
+>
+> V říjnu 2026 workbench ještě funguje a vygenerovaný `serve.json` ho pořád otevírá
+> (`initialPage`) — kurz ukazuje obojí, ale za „správnou" cestu bere moderní stránku s Debug
+> Toolbarem. Každý lab, který workbench používá, má rámeček s náhradním postupem pro běh po
+> 2026-12-01. Další zdroje:
 > [Build your first web part](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/build-a-hello-world-web-part)
 > (updated 2026-05-21), [Debug Toolbar](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/debug-toolbar).
 
@@ -222,6 +233,9 @@ Stav po dni 1: [`solution/vltava-portal/`](solution/vltava-portal/).
 ## Stav produktu / delta
 
 > [!WARNING] Ověřit k datu běhu — stav k 2026-10.
-> Hosted workbench funguje do 2026-12-01. Po tomto datu přestane fungovat krok labu
-> s workbenchem a `initialPage` ve vygenerovaném `serve.json` povede na nefunkční adresu —
-> pro další běhy kurzu přepsat lab jen na moderní stránku.
+> Hosted workbench funguje do 2026-12-01 a jen pro projekty do SPFx 1.23
+> ([release notes 1.23.0](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+> Po tomto datu přestanou fungovat kroky labů s workbenchem (náhradní postup je v rámečku
+> u každého z nich) a `initialPage` ve vygenerovaném `serve.json` povede na nefunkční adresu —
+> pro běhy po 2026-12-01 přepsat laby jen na moderní stránku a `initialPage` nasměrovat na
+> testovací stránku.

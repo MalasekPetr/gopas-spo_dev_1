@@ -633,6 +633,14 @@ suffix)`, oba titulky končí ` (<ini>)` a `id` v manifestu je stejné jako po k
 
 ## Část D — Měření bez schválení (10 min)
 
+> [!WARNING] Hosted workbench končí 2026-12-01
+> SPFx 1.23 je podle release notes **poslední verze s podporou** hosted workbenche: je
+> deprecated od 2026-05-13 a 2026-12-01 se retiruje
+> ([SPFx v1.23.0 release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+> **Po tomto datu nebo v projektu na SPFx 1.24+** udělej kroky 11–13 na testovací stránce svého
+> webu s parametry `?loadSPFX=true&debugManifestsFile=https://localhost:4321/temp/build/manifests.js`
+> (postup: [`first-webpart`, krok 9](../../day-1/first-webpart/lab-prvni-webpart.md#9-otestuj-na-skutečné-stránce)).
+
 ### 11. Změř, co Adresář vidí bez schválení
 
 `npm start`, workbench vlastního webu + query string → web part **Vltava Employee Directory

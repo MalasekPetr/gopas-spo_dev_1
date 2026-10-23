@@ -48,7 +48,7 @@ Zdroje: [SPFx roadmap](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/roa
 | Co | Kdy | Dopad |
 |---|---|---|
 | Gulp toolchain | od 1.24 **bez podpory** | staré projekty migrovat na Heft |
-| Hosted workbench | retirement **2026-12-01** | ladit na moderní stránce s Debug Toolbarem (den 1) |
+| Hosted workbench | deprecated od 1.23.0 (2026-05-13); **1.23 je poslední verze s podporou**, retirement **2026-12-01** | upgrade na 1.24 = konec workbenche i před retirementem; ladit na moderní stránce s Debug Toolbarem (den 1) — [release notes 1.23.0](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations) |
 | SPFx CLI (náhrada Yeoman generátoru) | GA plánované v 1.25 | `yo @microsoft/sharepoint` v návodech zastará |
 | Navigation customizers | plánované v 1.25 | nový typ extension pro navigaci |
 

@@ -117,6 +117,14 @@ a `PortalWebPartStrings_en-us_….js`).
 
 ## Část C — ověření v obou jazycích (15 min)
 
+> [!WARNING] Hosted workbench končí 2026-12-01
+> SPFx 1.23 je podle release notes **poslední verze s podporou** hosted workbenche: je
+> deprecated od 2026-05-13 a 2026-12-01 se retiruje
+> ([SPFx v1.23.0 release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+> **Po tomto datu nebo v projektu na SPFx 1.24+** udělej kroky 4–6 na **české** testovací stránce
+> (web `spodev-<ini>-cs`) s parametry `?loadSPFX=true&debugManifestsFile=https://localhost:4321/temp/build/manifests.js`
+> (postup: [`first-webpart`, krok 9](../../day-1/first-webpart/lab-prvni-webpart.md#9-otestuj-na-skutečné-stránce)).
+
 ### 4. Ověř oba jazyky
 
 ```powershell

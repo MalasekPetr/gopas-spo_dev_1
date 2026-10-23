@@ -25,6 +25,12 @@ Denní briefingy: [`day-1`](./day-1/README.md) · [`day-2`](./day-2/README.md) �
 > Laby stojí na **SPFx 1.23.2** (npm `latest` k 2026-10-16). SPFx **1.24** byla k témuž dni
 > ve stavu release candidate (`1.24.0-rc.0`) s GA ohlášenou na říjen 2026 — může vyjít během
 > kurzu. Kurz na RC nepřechází; 1.24 je delta v bloku `spfx-whats-next`.
+>
+> **Hosted workbench** je deprecated od SPFx 1.23.0 (2026-05-13), 1.23 je poslední verze s jeho
+> podporou a **2026-12-01** se retiruje
+> ([release notes 1.23.0](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+> Běhy po tomto datu dělají všechny kroky s workbenchem na testovací stránce s Debug Toolbarem
+> (rámeček v každém dotčeném labu, dny 1–4).
 
 ## Den 1 — Platforma, nástroje, první web part
 

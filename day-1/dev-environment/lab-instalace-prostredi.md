@@ -138,6 +138,13 @@ ji nevidí — zavři **celé VS Code**, ne jen terminál.
 **Checkpoint:** v novém terminálu `$env:SPFX_SERVE_TENANT_DOMAIN` vypíše tvou hodnotu
 s `/sites/spodev-<ini>`.
 
+> [!NOTE] Proměnná zůstane užitečná i po konci workbenche
+> `serve.json` z ní skládá adresu, kterou `npm start` otevře (`initialPage`). Dnes je to hosted
+> workbench, který se **2026-12-01 retiruje**
+> ([release notes 1.23.0](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.23.0#deprecations)).
+> Po tomto datu stačí v `serve.json` změnit `initialPage` na testovací stránku webu — proměnná
+> s adresou webu zůstává stejná.
+
 ### 9. Nainstaluj rozšíření VS Code
 
 ```powershell
