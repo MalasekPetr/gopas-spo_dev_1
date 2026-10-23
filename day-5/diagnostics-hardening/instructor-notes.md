@@ -2,7 +2,8 @@
 
 ## Timing
 
-- ~25 min výklad + 50 min lab.
+- ~10 min výklad + 35 min lab: kroky 1–4 hands-on, kroky 5–6 demo lektora s referenčními
+  nálezy z `mereni-hardening.md` (zkráceno 2026-10-23 kvůli `equipment-desk`).
 - Krok 3 (simulovaná chyba) je nejpřesvědčivější moment bloku — nekrátit. Krok 6 padá první.
 
 ## Go/no-go — otestovat před během

@@ -1,6 +1,6 @@
 # Diagnostika a hardening
 
-> Typ: povinný · Den: 5 · Odhad: 75 min
+> Typ: povinný · Den: 5 · Odhad: 45 min
 > Tenant: `cloudedu.cz` · Režim: hands-on, vlastní web
 > Prostředí: [`../../environment.md`](../../environment.md) · Názvosloví: [`../../GLOSSARY.md`](../../GLOSSARY.md)
 

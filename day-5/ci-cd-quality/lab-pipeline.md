@@ -1,6 +1,6 @@
 # Lab · Testy, brány a pipeline
 
-> Modul: `ci-cd-quality` · Odhad: 50 min · Režim: hands-on lokálně; GitHub jako demo lektora
+> Modul: `ci-cd-quality` · Odhad: 35 min · Režim: hands-on lokálně (kroky 1–4); krok 5 společně, krok 6 demo lektora
 > Tenant: — · Scénář: [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md)
 
 ## Cíl

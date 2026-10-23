@@ -8,7 +8,7 @@ z klasického SharePointu na moderní vývoj. Katalogová stránka:
 [SPO_DEV_1](https://www.gopas.cz/sharepoint-framework-%28spfx%29--zaklady-vyvoje-aplikaci_spo_dev_1).
 
 > [!IMPORTANT] Osnova v tomto repu není totožná s publikovanou
-> Katalog má 15 bloků po 2–2,5 h a bonus. Repo má 17 povinných bloků a 1 volitelný, drží stav
+> Katalog má 15 bloků po 2–2,5 h a bonus. Repo má 18 povinných bloků a 1 volitelný, drží stav
 > produktu k 2026-10 a opravuje věcné chyby katalogu — hlavně **toolchain je od SPFx 1.22 Heft,
 > ne gulp**. Mapování katalogu na bloky je v [`self-study.md`](self-study.md), pořadí
 > v [`agenda.md`](agenda.md).

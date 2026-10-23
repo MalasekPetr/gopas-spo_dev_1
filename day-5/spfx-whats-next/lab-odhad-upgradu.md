@@ -1,6 +1,6 @@
 # Lab · Odhad upgradu na SPFx 1.24
 
-> Modul: `spfx-whats-next` · Odhad: 15 min · Režim: návrh, ve dvojicích
+> Modul: `spfx-whats-next` · Odhad: 10 min · Režim: návrh, ve dvojicích
 > Tenant: — · Scénář: [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md)
 
 ## Cíl

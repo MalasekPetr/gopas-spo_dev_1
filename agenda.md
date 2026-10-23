@@ -6,7 +6,7 @@ pořadí = úprava tohoto souboru, ne přejmenování složek.
 Denní briefingy: [`day-1`](./day-1/README.md) · [`day-2`](./day-2/README.md) ·
 [`day-3`](./day-3/README.md) · [`day-4`](./day-4/README.md) · [`day-5`](./day-5/README.md).
 
-**5 dní · 17 povinných bloků + 1 volitelný.** P = povinný, V = volitelný / samostudium.
+**5 dní · 18 povinných bloků + 1 volitelný.** P = povinný, V = volitelný / samostudium.
 
 > [!IMPORTANT] Osnova je restrukturalizovaná proti webu
 > Katalogová osnova má 15 bloků po 2–2,5 h a bonus (součet ~37 h). Tato agenda drží stav
@@ -90,12 +90,19 @@ Den končí v 15:00.
 
 | # | Blok | Slug | Typ | min |
 |---|---|---|---|---|
-| 1 | CI/CD a quality gates | `ci-cd-quality` | P | 75 |
-| 2 | Diagnostika a hardening | `diagnostics-hardening` | P | 75 |
-| 3 | Co přináší SPFx 1.24 a 1.25 | `spfx-whats-next` | P | 30 |
-| 4 | Capstone — obhajoba řešení a code review | `capstone` | P | 90 |
+| 1 | CI/CD a quality gates | `ci-cd-quality` | P | 45 |
+| 2 | Diagnostika a hardening | `diagnostics-hardening` | P | 45 |
+| 3 | Výdejna vybavení — samostatný lab | `equipment-desk` | P | 120 |
+| 4 | Co přináší SPFx 1.24 a 1.25 | `spfx-whats-next` | P | 20 |
+| 5 | Capstone — ukázka výsledku a backlog | `capstone` | P | 40 |
 
 Celkem **270 min**.
+
+> [!NOTE] Den 5 stojí na samostatném labu
+> Nejdelší blok dne je `equipment-desk`: student **sám** podle kroků postaví full-page
+> aplikaci Výdejna vybavení (druhý seznam s lookupem, Pivot, Panel formuláře, výdej a vrácení).
+> Pipeline a diagnostika jsou proto zhuštěné — co jde ukázat, ukáže lektor. Capstone je
+> ukázka výsledku labu a backlog, ne code review ve dvojicích.
 
 ## Kompresní ventily — v tomto pořadí
 
@@ -124,9 +131,10 @@ moderní stránce v `first-webpart` (jediná cesta k testování extensions ve �
 2. experiment s lazy loadingem v `performance-caching` (krok 3) jako demo s čísly z README (−15).
 **Nekrátit** `packaging-deployment` — capstone stojí na nasazeném řešení.
 
-**Den 5** — 1. vlastní běhy pipeline studentů v `ci-cd-quality` (krok 6) vynechat, jen demo lektora (−15);
-2. `spfx-whats-next` jen výklad (−15).
-**Nekrátit** `capstone`.
+**Den 5** — 1. kontrola výstupu buildu v `diagnostics-hardening` jen jako demo s referenčními
+nálezy (−5); 2. `spfx-whats-next` jen výklad (−10); 3. bonusové kroky `equipment-desk` nejsou
+povinné — rychlí je dělají, ostatní je přeskočí.
+**Nekrátit** jádro `equipment-desk` — na jeho výsledku stojí capstone.
 
 > [!IMPORTANT] Volitelné moduly jsou vždy leaf
 > `opt-kendo-react` nesmí být předpokladem žádného povinného bloku ani capstonu. Kdo ho
@@ -143,14 +151,16 @@ flowchart LR
   D2 --> D3[D3 data<br/>Graph, PnPjs, opravneni]
   D3 --> D4[D4 extensions<br/>vykon, nasazeni]
   D4 --> D5[D5 pipeline<br/>diagnostika]
-  D5 --> C[Capstone<br/>obhajoba a review]
+  D5 --> V[D5 vydejna<br/>samostatny lab]
+  V --> C[Capstone<br/>ukazka a backlog]
 ```
 
 ## Nitě napříč kurzem
 
 - **Měřicí nit** — `project-anatomy` (D1, čas instalace) → `bundle-baseline` (D3, první
   změřená velikost balíčku) → `performance-caching` (D4, totéž po optimalizaci) →
-  `ci-cd-quality` (D5, limit velikosti v pipeline) → `capstone` (D5, obhajoba čísel).
+  `ci-cd-quality` (D5, limit velikosti v pipeline) → `equipment-desk` (D5, kolik stojí
+  Pivot a Panel) → `capstone` (D5, obhajoba čísel).
 - **Tenantová nit** — `platform-positioning` (D1, kód běží jako uživatel v jeho tenantu) →
   `permissions-consent` (D3, schválení platí pro celý tenant) → `packaging-deployment`
   (D4, tenant vs. site) → `diagnostics-hardening` (D5, co smí opustit tenant). Pokaždé

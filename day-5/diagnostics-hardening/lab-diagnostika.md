@@ -1,6 +1,6 @@
 # Lab · Logy, měření, error boundary a kontrola před předáním
 
-> Modul: `diagnostics-hardening` · Odhad: 50 min · Režim: hands-on, vlastní web + lokálně
+> Modul: `diagnostics-hardening` · Odhad: 35 min · Režim: hands-on, vlastní web (kroky 1–4); kroky 5–6 demo lektora
 > Tenant: `cloudedu.cz` · Scénář: [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md)
 
 ## Cíl

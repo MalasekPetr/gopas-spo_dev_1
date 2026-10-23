@@ -12,7 +12,8 @@ běží na SharePoint Online. IT chce na intranetu tři věci, které standardn�
    nastaví samo (bez zásahu vývojáře) a který mluví česky i anglicky.
 2. **Adresář zaměstnanců** — vyhledávání kolegů podle jména a oddělení nad Microsoft Graph.
 3. **Evidence vybavení** — kdo má jaký notebook a telefon, nad seznamem SharePointu, s akcí
-   „Vydat zařízení" přímo v seznamu.
+   „Vydat zařízení" přímo v seznamu. K tomu **Výdejna** — aplikace pro IT, která výdej
+   a vrácení zapisuje do historie výpůjček.
 
 Firma má jednu podmínku, která se táhne celým týdnem: **data zůstávají v tenantu firmy.**
 Řešení nesmí posílat data zaměstnanců do služby mimo Microsoft 365 a každé oprávnění k API
@@ -28,7 +29,7 @@ Jedno SPFx řešení `vltava-portal-<iniciály>`, které každý den roste o jed
 | 2 | konfigurace oddělením přes property pane, čeština + angličtina, funkční komponenty a Fluent UI, struktura `components/` `hooks/` `models/` | `property-pane`, `localization`, `react-fluent-ui` |
 | 3 | web part **Adresář zaměstnanců** (Graph), web part **Evidence vybavení** (PnPjs), schválená API oprávnění, první změřená velikost balíčku | `data-access-clients`, `permissions-consent`, `pnpjs`, `bundle-baseline` |
 | 4 | banner oznámení (Application Customizer), akce **Vydat zařízení** (Command Set), změřená optimalizace balíčku a cache hledání, upgrade na verzi 1.1.0.0 | `extensions`, `performance-caching`, `packaging-deployment` |
-| 5 | pipeline s lintem, testy a limitem velikosti balíčku, logování, performance marks a error boundary, kontrola závislostí, obhajoba | `ci-cd-quality`, `diagnostics-hardening`, `spfx-whats-next`, `capstone` |
+| 5 | pipeline s lintem, testy a limitem velikosti balíčku, logování, performance marks a error boundary, kontrola závislostí; samostatně full-page aplikace **Výdejna vybavení** nad seznamem `EquipmentLoans` (lookup na `Equipment`), upgrade na 1.2.0.0; ukázka a backlog | `ci-cd-quality`, `diagnostics-hardening`, `equipment-desk`, `spfx-whats-next`, `capstone` |
 
 ```mermaid
 flowchart TB
@@ -38,9 +39,13 @@ flowchart TB
   S --> Q[Equipment<br/>web part D3, PnPjs]
   S --> B[PortalBanner<br/>Application Customizer D4]
   S --> C[IssueEquipment<br/>Command Set D4]
+  S --> D[EquipmentDesk<br/>full-page app D5]
   E --> G[Microsoft Graph<br/>v tenantu]
   Q --> L[Seznam Equipment<br/>na webu studenta]
   C --> L
+  D --> L
+  D --> H[Seznam EquipmentLoans<br/>lookup na Equipment]
+  D --> G
 ```
 
 ## Pravidla, která drží linku pohromadě

@@ -2,7 +2,7 @@
 
 ## Timing
 
-- ~15 min výklad + 15 min lab. Kompresní ventil: jen výklad (15 min).
+- ~10 min výklad + 10 min lab. Kompresní ventil: jen výklad (10 min).
 
 ## Go/no-go — otestovat před během
 

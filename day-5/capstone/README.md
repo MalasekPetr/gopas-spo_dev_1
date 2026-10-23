@@ -1,7 +1,7 @@
-# Capstone — obhajoba řešení a code review
+# Capstone — ukázka výsledku a backlog
 
-> Typ: povinný · Den: 5 · Odhad: 90 min
-> Tenant: `cloudedu.cz` · Režim: prezentace + code review ve dvojicích
+> Typ: povinný · Den: 5 · Odhad: 40 min
+> Tenant: `cloudedu.cz` · Režim: ukázka výsledku (každý) + backlog
 > Prostředí: [`../../environment.md`](../../environment.md) · Názvosloví: [`../../GLOSSARY.md`](../../GLOSSARY.md)
 
 Konec týdne. Každý student předvede **své** řešení `vltava-portal-<ini>` běžící z App Catalogu,

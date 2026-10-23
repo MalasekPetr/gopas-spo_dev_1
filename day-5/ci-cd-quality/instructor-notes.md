@@ -2,7 +2,8 @@
 
 ## Timing
 
-- ~20 min výklad + 50 min lab + 5 min shrnutí.
+- ~10 min výklad + 35 min lab (zkráceno 2026-10-23 kvůli samostatnému labu `equipment-desk`).
+- Kroky 1–4 hands-on (testy jdou zkopírovat ze `solution/`), krok 5 společně na projektoru.
 - Kroky 1–5 jsou lokální a spolehlivé; krok 6 je **vždy demo lektora**. Studenti s vlastním
   GitHub účtem ho mohou zopakovat — nikoho k tomu nenutit (soukromí, commity jsou veřejně
   podepsané jménem a e-mailem).

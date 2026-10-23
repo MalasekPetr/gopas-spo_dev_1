@@ -1,6 +1,6 @@
 # Co přináší SPFx 1.24 a 1.25
 
-> Typ: povinný · Den: 5 · Odhad: 30 min
+> Typ: povinný · Den: 5 · Odhad: 20 min
 > Tenant: — · Režim: výklad + návrh (odhad dopadu na vlastní řešení)
 > Prostředí: [`../../environment.md`](../../environment.md) · Názvosloví: [`../../GLOSSARY.md`](../../GLOSSARY.md)
 
