@@ -50,39 +50,66 @@ flowchart TB
 
 ## Pravidla, která drží linku pohromadě
 
-- **Jedno řešení na studenta.** Student si ho v pondělí vygeneruje sám — tím dostane vlastní
-  `solution.id` a vlastní ID komponent. Celý tenant je sdílený a ID se na něm nesmí potkat.
+- **Jedno řešení na studenta.** Student si ho v pondělí vygeneruje sám a hned mu dá svou
+  identitu skriptem `Set-StudentIdentity.ps1` (viz níže). Celý tenant je sdílený a ID se na
+  něm nesmí potkat.
 - **Jeden web na studenta:** `/sites/spodev-<iniciály>`. Na něm je testovací stránka, seznam
   `Equipment` (od dne 3) a od dne 3 i aplikace z tenantového App Catalogu. Druhý web
   `spodev-<iniciály>-cs` v češtině slouží k testu lokalizace a jako web **bez** aplikace.
-- **Každý den končí `solution/`.** Modul, kterým den končí, má ve složce `solution/` stav
-  řešení **po** dni. Slouží ke srovnání (`diff`) a k dohnání skluzu, ne k odevzdání.
+- **Každý kódový lab má startovní a cílový kód.** Start = `solution/` předchozího modulu,
+  cíl = `solution/` tohoto modulu. Lab mezi nimi vede rozdílovými kroky. Slouží ke srovnání
+  (`diff`) a k dohnání skluzu, ne k odevzdání.
 
-## Jak dohnat skluz ze `solution/`
+## Identita řešení na sdíleném tenantu
 
-Když student nestihne lab, převezme stav ze `solution/` posledního modulu dne. Kopíruje
-**jen zdrojáky**, ne identitu řešení:
+Všichni nasazují do **jednoho** tenantového App Catalogu. Koliduje všechno, co nese ID nebo
+jméno:
 
-1. Zkopírovat složku `src/` ze `solution/vltava-portal/` do vlastního projektu (přepsat).
-2. Porovnat `dependencies` v `package.json` a doinstalovat, co chybí (`npm install <balíček>`
-   s verzí ze `solution/`).
-3. **Vygenerovat nová ID komponent.** V každém `*.manifest.json` pod `src/` nahradit hodnotu
-   `"id"` novým GUIDem:
+| Co | Kde | Co se stane při shodě |
+|---|---|---|
+| ID řešení | `config/package-solution.json`, `.yo-rc.json` | druhé nahrání přepíše řešení kolegy |
+| ID feature | `package-solution.json`, cesta v `upgrade-actions-*.xml` | upgrade běží nad cizím řešením |
+| ID komponent | `*.manifest.json`, `elements.xml`, `serve.json`, `teams/<id>_*.png` | student testuje cizí kód |
+| název řešení a balíčku | `package-solution.json`, `package.json` | v katalogu nejde poznat, čí co je |
+| titulek web partu | `preconfiguredEntries` v manifestu | v toolboxu patnáct stejných web partů |
 
-   ```powershell
-   [guid]::NewGuid().ToString()
-   ```
+Řeší to jeden příkaz:
 
-4. **Neměnit** vlastní `config/package-solution.json` a `.yo-rc.json` — nesou ID řešení.
-5. Od dne 4: ID extensions v `sharepoint/assets/elements.xml` (`ClientSideComponentId`) musí
-   odpovídat novým ID z kroku 3 a GUID v `upgrade-actions-v1.1.xml` GUIDu feature z **vlastního**
-   `package-solution.json`.
+```powershell
+& "$HOME\gopas-spo_dev_1\scripts\Set-StudentIdentity.ps1" -Initials <ini> -ProjectPath <projekt>
+```
 
-> [!WARNING] Proč krok 3 nevynechat
-> Řešení ze `solution/` má pevná ID komponent. Pokud by dva studenti nasadili do tenantového
-> App Catalogu (den 3) komponentu se stejným ID, druhé nasazení koliduje s prvním a jeden
-> z nich bude testovat cizí kód. Na sdíleném tenantu je to chyba, kterou nikdo nevidí, dokud
-> se nezačne divit.
+- ID **nejsou náhodná**: jsou odvozená z iniciál a aliasu komponenty (UUID v5). Stejný
+  student dostane vždy stejná ID — ve vlastním projektu i v kódu převzatém ze `solution/`
+  kteréhokoli modulu. App Catalog proto vidí pořád **totéž** řešení a upgrade funguje.
+- Dva studenti s různými iniciálami nemají žádné ID společné. **Stejné iniciály** rozliší
+  lektor ráno číslicí (`pm`, `pm2`) — skript stejné iniciály rozlišit neumí.
+- Druhé spuštění nic nezmění; spuštění s jinými iniciálami na stejném projektu skript odmítne
+  (soubor `.student-identity`).
+- Doplní `-<ini>` do názvu řešení a `.sppkg` a ` (<ini>)` do titulků web partů.
+- `solution/` v repu nesou šablonová ID kurzu a **nikdy** se nenasazují bez tohoto skriptu.
+  Lektor to kontroluje skriptem `scripts/Find-CatalogCollisions.ps1` (ráno dne 3).
+
+## Jak převzít startovní kód ze `solution/`
+
+Když student nestihne lab nebo se mu projekt rozbije, převezme **celý** stav ze `solution/`
+předchozího modulu (Startovní čára každého labu říká kterého):
+
+```powershell
+$from = "$HOME\gopas-spo_dev_1\<den>\<modul>\solution\vltava-portal"
+$to = "$HOME\spodev\vltava-portal-<ini>"
+robocopy $from $to /E /XD node_modules     # copies and overwrites, deletes nothing
+Set-Location $to
+npm install
+& "$HOME\gopas-spo_dev_1\scripts\Set-StudentIdentity.ps1" -Initials <ini> -ProjectPath $to
+npm run build
+```
+
+- `robocopy` končí kódem 1–7 při úspěchu (0 = nic ke kopírování); 8 a víc je chyba.
+- `/E` nic nemaže — vlastní soubory (`measurements/`, `HARDENING.md`, `.student-identity`)
+  zůstanou.
+- **Bez `Set-StudentIdentity.ps1` nikdy nenasazovat.** Převzatý kód má šablonová ID kurzu;
+  nasazení by přepsalo řešení kohokoli dalšího, kdo udělal totéž.
 
 ## Co se tento týden **nestaví**
 

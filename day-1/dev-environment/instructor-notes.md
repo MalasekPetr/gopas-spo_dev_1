@@ -20,9 +20,10 @@
 
 ## Tripwires
 
-- **Stejné iniciály u dvou studentů** — kolidují adresa webu `spodev-<ini>`, název řešení
-  i název web partu v toolboxu. Iniciály rozdat ráno a zapsat na tabuli, při shodě přidat
-  číslici (`pm`, `pm2`).
+- **Stejné iniciály u dvou studentů** — kolidují adresa webu `spodev-<ini>`, název řešení,
+  název web partu v toolboxu a hlavně **všechna ID** ze `Set-StudentIdentity.ps1` (odvozená
+  z iniciál). Iniciály rozdat ráno a zapsat na tabuli, při shodě přidat číslici (`pm`, `pm2`).
+  Skript přijme jen vzor `^[a-z]{2,3}[0-9]?$`.
 
 - **Windows PowerShell 5.1 místo pwsh 7** — studenti otevřou „PowerShell" z nabídky Start.
   `$PSVersionTable.PSVersion` musí být 7.x. Skript to hlásí jako FAIL.

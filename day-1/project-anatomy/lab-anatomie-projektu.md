@@ -40,6 +40,23 @@ yo @microsoft/sharepoint `
 **Checkpoint:** existuje složka `$HOME\spodev\vltava-portal-<ini>` a v jejím `.yo-rc.json`
 je `"version": "1.23.2"` a `"useGulp": false`.
 
+Hned potom dej projektu **svou identitu** — ID řešení, feature a komponent odvozená z tvých
+iniciál:
+
+```powershell
+& "$HOME\gopas-spo_dev_1\scripts\Set-StudentIdentity.ps1" -Initials <ini> `
+    -ProjectPath "$HOME\spodev\vltava-portal-<ini>"
+```
+
+Celá třída nasazuje do **jednoho** App Catalogu. Generátor dává náhodná ID, ale když později
+převezmeš kód ze `solution/` některého modulu, musí mít tvůj projekt pořád stejná ID — jinak
+katalog uvidí jiné řešení a web party na stránkách zmizí. Skript dává stejnému studentovi vždy
+stejná ID a dvěma studentům nikdy stejná
+([`scenario-vltava-portal.md`](../../scenario-vltava-portal.md#identita-řešení-na-sdíleném-tenantu)).
+
+**Checkpoint:** skript vypíše tabulku `Slot / Old / New` a v projektu je soubor
+`.student-identity` s tvými iniciálami. Druhé spuštění vypíše *nothing changed*.
+
 ### 2. Otevři projekt a spusť měřenou instalaci
 
 ```powershell

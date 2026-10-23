@@ -13,7 +13,7 @@ vydáš notebook kolegovi z adresáře, vrátíš ho, historie výpůjček sedí
 nesedí-li, nepokračuj a zavolej lektora. Hotové soubory:
 [`solution/vltava-portal/`](solution/vltava-portal/). Časy u kroků jsou orientační; kdo je
 v 13:30 před krokem 11, převezme `src/` ze solution (postup ve
-[scénáři](../../scenario-vltava-portal.md#jak-dohnat-skluz-ze-solution)).
+[scénáři](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution)).
 
 ## Předpoklady
 
@@ -889,7 +889,7 @@ v kódu: záložka *Nesoulad* nad daty, která už hook načetl.
   PnP PowerShellem (`Connect-PnPOnline ... -ClientId <client-id-od-lektora>`, pak
   `Set-PnPPage -Identity Vydejna -LayoutType SingleWebPartAppPage`).
 - **Při časové tísni:** převezmi `src/` ze [solution](solution/vltava-portal/) podle
-  [scénáře](../../scenario-vltava-portal.md#jak-dohnat-skluz-ze-solution) (nová ID komponent!)
+  [scénáře](../../scenario-vltava-portal.md#jak-převzít-startovní-kód-ze-solution) (a hned `Set-StudentIdentity.ps1`!)
   a dokonči jen krok 12.
 
 ## Zdroje (Microsoft)

@@ -9,6 +9,9 @@
 ## Go/no-go — otestovat před během
 
 - Tenantový App Catalog existuje a studentské účty do něj smí nahrávat (Global Administrator).
+- **Identity řešení před prvním nasazením:** ráno spustit `scripts/Find-CatalogCollisions.ps1`
+  (po prvních nahráních znovu). Každý balíček musí mít stav `OK`; `TEMPLATE` nebo `NO-SUFFIX`
+  = student nespustil `Set-StudentIdentity.ps1` — opravit dřív, než nahraje druhý student.
 - **API access je čisté**: žádné schválené `User.Read.All` ani `Presence.Read.All` z dřívějška.
   Jinak fallback v kroku 7 nenastane. *Remove access* den předem.
 - Popisky v dialogu nahrání (*Only enable this app* / *Enable this app and add it to all sites*)

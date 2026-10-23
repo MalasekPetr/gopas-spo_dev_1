@@ -42,7 +42,7 @@ gopas-spo_dev_1/
 ├─ self-study.md                # mapování na katalog, co se neodučí
 ├─ _templates/                  # module.md, lab.md, instructor-notes.md, day-readme.md
 ├─ day-1/ … day-5/              # obsah po dnech; každý modul = složka se slugem
-└─ scripts/                     # Test-DevEnvironment, Measure-BundleSize, New-EquipmentList, Test-RepoIntegrity
+└─ scripts/                     # Test-DevEnvironment, Set-StudentIdentity, Measure-BundleSize, New-Equipment*List, Find-CatalogCollisions, Test-RepoIntegrity
 ```
 
 Modul obsahuje `README.md` (výklad, student), `lab-*.md` (zadání, student),
