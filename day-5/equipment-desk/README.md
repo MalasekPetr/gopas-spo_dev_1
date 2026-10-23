@@ -80,6 +80,12 @@ Pro aplikaci typu „výdejna" je to přirozenější než web part na stránce.
 - Nasazení: verze **1.2.0.0** do tenantového App Catalogu, upgrade aplikace na vlastním webu
   (postup z `packaging-deployment`, D4).
 
+## Lab
+
+Viz [`lab-vydejna-vybaveni.md`](lab-vydejna-vybaveni.md). Hotové soubory:
+[`solution/vltava-portal/`](solution/vltava-portal/) (verze 1.2.0.0, 17 testů,
+`equipment-desk-web-part` 469 664 B, změřeno 2026-10-23, MALACH-PC04).
+
 ## Nosná linka
 
 Řešení dostane šestou komponentu — web part **EquipmentDesk**, nasazený jako full-page

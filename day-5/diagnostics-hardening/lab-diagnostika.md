@@ -80,7 +80,7 @@ V Adresáři hledej nové jméno. Pak:
 **Checkpoint:** po prvním hledání je v Trace řádek s dobou volání Graphu; po opakovaném
 **nový řádek nepřibude** (cache z dne 4 — do měřené funkce se nedojde).
 
-### 5. Kontrola závislostí
+### 5. Kontrola závislostí (demo lektora)
 
 ```powershell
 npm audit
@@ -97,7 +97,7 @@ licence mají produkční závislosti (referenční: 0 a MIT/0BSD/Apache-2.0/BSD
 
 **Checkpoint (negativní):** `npm audit fix` jsi **nespustil**.
 
-### 6. Kontrola výstupu buildu
+### 6. Kontrola výstupu buildu (demo lektora)
 
 ```powershell
 npm run build

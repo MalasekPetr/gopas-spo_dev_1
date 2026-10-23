@@ -1,47 +1,44 @@
-# Lab · Obhajoba a code review
+# Lab · Ukázka výsledku a backlog
 
-> Modul: `capstone` · Odhad: 80 min · Režim: prezentace (každý) + review ve dvojicích
+> Modul: `capstone` · Odhad: 35 min · Režim: ukázka (každý, 2 min) + backlog samostatně
 > Tenant: `cloudedu.cz` · Scénář: [`../../scenario-vltava-portal.md`](../../scenario-vltava-portal.md)
 
 ## Cíl
 
-Odprezentované vlastní řešení, vyplněná rubrika řešení kolegy a `BACKLOG.md` s položkami,
-které mají ověřitelné kritérium hotovo.
+Předvedená Výdejna vybavení z App Catalogu, odpovědi na tři otázky z README a `BACKLOG.md`
+s položkami, které mají ověřitelné kritérium hotovo.
 
 **Jak lab číst:** každý krok končí **Checkpointem** — nesedí-li, nepokračuj.
 
 ## Předpoklady
 
-- Řešení verze 1.1.0.0 (nebo vyšší) nasazené na webu `spodev-<ini>`.
-- Soubory `measurements/*.json` a `HARDENING.md` z dnů 3–5.
+- Řešení verze 1.2.0.0 nasazené na webu `spodev-<ini>`, stránka *Vydejna* (lab `equipment-desk`).
+- Číslo z `Measure-BundleSize.ps1` (krok 12 labu `equipment-desk`).
 
 ## Kroky
 
-### 1. Připrav obhajobu (10 min)
+### 1. Připrav ukázku (5 min)
 
-Na testovací stránce webu `spodev-<ini>` měj Rozcestník, Adresář a Evidenci; v druhé kartě
-seznam `Equipment`. Připrav si tabulku delty:
-
-```powershell
-& "$HOME\gopas-spo_dev_1\scripts\Measure-BundleSize.ps1" -ProjectPath . -BaselineFile .\measurements\baseline.json
-```
+V prohlížeči měj stránku *Vydejna* a v druhé kartě seznam `EquipmentLoans`. Připrav si jeden
+kus skladem, který na ukázce vydáš.
 
 **Checkpoint:** stránka se otevře **bez** debug parametrů a Debug Toolbar **není** vidět —
 předvádíš verzi z katalogu.
 
-### 2. Obhaj řešení (4 min na studenta)
+### 2. Předveď a odpověz (2 min na studenta)
 
-Odpověz na 4 otázky z README (co a kde, kam tečou data, co schválil admin, co jsi změřil).
+Vydej kus kolegovi, ukaž ho v *Historii* a v seznamu. Pak tři otázky z README: kam tečou data,
+co když výdej selže napůl, co jsi změřil.
 
-**Checkpoint:** každé tvrzení o velikosti nebo výkonu má číslo a datum.
+**Checkpoint:** tvrzení o velikosti má číslo a datum.
 
-### 3. Projdi řešení kolegy (20 min)
+### 3. Sestav backlog (10 min)
 
-Ve dvojici si vyměňte projekty (složku nebo repozitář — **jen čtení**). Vyplň rubriku z README
-do souboru `REVIEW-<ini-kolegy>.md`: u každé oblasti body 0–2 a **jeden důkaz** (soubor
-a řádek, výstup příkazu, screenshot).
+Projdi **vlastní** řešení podle rubriky z README (8 oblastí, 0–2 body, jeden důkaz každá).
+Z oblastí pod 2 body, z `spfx-whats-next` a z otázky „napůl hotový výdej" vytvoř `BACKLOG.md`:
+každá položka = problém, kritérium hotovo (ověřitelné příkazem nebo měřením), odhad.
 
-Užitečné příkazy nad cizím projektem:
+Užitečné příkazy:
 
 ```powershell
 Get-ChildItem .\src -Recurse -Include *.ts, *.tsx | Select-String -Pattern "from '\.\./\.\./\.\./hooks'"
@@ -50,34 +47,22 @@ Get-ChildItem .\src -Recurse -Include *.ts, *.tsx | Select-String -Pattern 'loca
 Get-Content .\config\package-solution.json | Select-String -Pattern 'scope'
 ```
 
-**Checkpoint:** všech 8 oblastí má body a důkaz.
-
-**Checkpoint (negativní):** v projektu kolegy jsi nic nezměnil (`git status` čisté nebo
-nezměněné časy souborů).
-
-### 4. Sestav backlog (10 min)
-
-Z rubriky, kterou dostal **tvůj** projekt, a z `spfx-whats-next` vytvoř `BACKLOG.md`: každá
-položka = problém, kritérium hotovo (ověřitelné příkazem nebo měřením), odhad.
-
 **Checkpoint:** žádná položka nemá kritérium typu „zlepšit" nebo „optimalizovat" bez čísla.
 
 ## Ověření
 
-- [ ] Obhajoba s čísly a daty, řešení běží z katalogu.
-- [ ] `REVIEW-<ini-kolegy>.md` s 8 oblastmi, body a důkazy.
-- [ ] `BACKLOG.md` s ověřitelnými kritérii.
-- [ ] **Negativní:** v cizím projektu nic nezměněno.
+- [ ] Ukázka z katalogu, s číslem a datem.
+- [ ] `BACKLOG.md` s ověřitelnými kritérii, včetně upgradu na SPFx 1.24.
+- [ ] **Negativní:** na ukázce nikdo nepředvádí z `localhost` — kdo nemá nasazeno, říká to
+      a v rubrice má u Funkce max. 1 bod.
 
 ## Fallback
 
-- **Řešení není nasazené v aktuální verzi** — obhajoba z `localhost` s debug parametry; v rubrice
+- **Řešení není nasazené v aktuální verzi** — ukázka z `localhost` s debug parametry; v rubrice
   oblast Funkce max. 1 bod.
-- **Chybí měření ze středy** — použít referenční čísla z
-  [`../../day-3/bundle-baseline/mereni-baseline.md`](../../day-3/bundle-baseline/mereni-baseline.md)
-  a vlastní páteční; přiznat to v obhajobě.
-- **Při časové tísni:** obhajoba 3 min, review jen 4 oblasti (Hranice tenantu, Oprávnění,
-  Měření, Kvalita).
+- **Výdejna nedokončená** — ukázka Evidence a příkazu Vydat zařízení; Výdejna jako první
+  položka backlogu.
+- **Při časové tísni:** ukázka jen u dobrovolníků, backlog dokončit po kurzu.
 
 ## Zdroje (Microsoft)
 

@@ -59,7 +59,7 @@ Copy-Item "$HOME\gopas-spo_dev_1\scripts\Measure-BundleSize.ps1" .\scripts\
 **Checkpoint:** limit 500 000 → `exit 0`; limit 400 000 → `Bundle equipment-web-part has … B`
 a `exit 1`.
 
-### 5. Přidej workflow
+### 5. Přidej workflow (společně s lektorem)
 
 Ze solution zkopíruj `.github/workflows/build.yml` do kořene **projektu**. Ověř, že
 `package-lock.json` **není** v `.gitignore` projektu.
